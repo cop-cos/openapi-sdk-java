@@ -17,7 +17,6 @@
 package com.coscon.cop.core;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Objects;
 
 import org.apache.commons.lang3.EnumUtils;
@@ -27,9 +26,7 @@ import org.apache.commons.lang3.EnumUtils;
  *
  */
 public interface Signer {
-	String HEADER_USER_AGENT = "User-Agent";
-	String HEADER_ACCEPT = "Accept";
-	String HEADER_ACCEPT_CHARSET = "Accept-Charset";
+
 	/**
 	 * Sign request with a given {@link CredentialsProvider}
 	 * @param provider to determine {@link Credentials}

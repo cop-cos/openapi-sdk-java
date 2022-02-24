@@ -18,9 +18,7 @@ package com.coscon.cop.httpclient;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -31,8 +29,6 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.client.fluent.Response;
-import org.apache.http.util.EntityUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
@@ -40,9 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.coscon.cop.core.ClientException;
-import com.coscon.cop.core.CommonResponse;
 import com.coscon.cop.core.Namespace;
-import com.google.gson.Gson;
 
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
@@ -52,7 +46,6 @@ public class CopClientInApacheHttpTest2 {
 
 	private CopClient copClient = CopClient.newInstance();
 	private Namespace ns = Namespace.COP_PUBLIC_PP;
-	private Gson gson = new Gson();
 
 	/**
 	 * @throws java.lang.Exception

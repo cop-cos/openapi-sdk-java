@@ -31,15 +31,11 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 import org.apache.http.client.methods.HttpRequestWrapper;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ConnectionRequest;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -50,7 +46,6 @@ import org.apache.http.util.EntityUtils;
 
 import com.coscon.cop.core.ClientException;
 import com.coscon.cop.core.Namespace;
-import com.coscon.cop.core.SignAlgorithm;
 import com.coscon.cop.core.Validator;
 import com.coscon.cop.internal.CopClientBase;
 
@@ -73,7 +68,7 @@ public class CopClient extends CopClientBase implements Closeable {
 	protected void initialize() {
 		httpClientBuilder = HttpClientBuilder.create();
 		httpClientBuilder.setConnectionTimeToLive(30, TimeUnit.SECONDS);
-		setSignMethod(SignAlgorithm.HMAC_SHA1);
+		setSignMethod(defaultSignMethod);
 		setResponseHandler(defaultResponseHandler);
 	}
 
@@ -198,7 +193,7 @@ public class CopClient extends CopClientBase implements Closeable {
 	 */
 	private static final ResponseHandler<String> defaultResponseHandler = new ResponseHandler<String>() {
 		@Override
-		public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+		public String handleResponse(HttpResponse response) throws IOException {
 			final int status = response.getStatusLine().getStatusCode();
 			final String reasonPhrase = response.getStatusLine().getReasonPhrase();
 			final HttpEntity entity = response.getEntity();

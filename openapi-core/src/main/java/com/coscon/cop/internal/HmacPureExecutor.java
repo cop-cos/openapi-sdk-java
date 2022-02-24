@@ -60,7 +60,6 @@ public abstract class HmacPureExecutor {
 	 * <p>
 	 * For hashing purpose, we choose the minimum cost algorithm 'hmac-sha1'.
 	 */
-	private static final SignAlgorithm DEFAULT_ALGORITHM = SignAlgorithm.HMAC_SHA1;
 	private static final String X_COSCON_HMAC_HEADER = "X-Coscon-Hmac";
 
 	/**

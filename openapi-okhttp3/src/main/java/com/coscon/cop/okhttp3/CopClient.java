@@ -71,7 +71,7 @@ public class CopClient extends CopClientBase implements Closeable {
 		setSignMethod(SignAlgorithm.HMAC_SHA1);
 	}
 
-	private final static ResponseHandler<String> defaultResponseHandler = new ResponseHandler<String>() {
+	private static final ResponseHandler<String> defaultResponseHandler = new ResponseHandler<String>() {
 
 		@Override
 		public String handleResponse(Response response) throws IOException {
@@ -102,6 +102,7 @@ public class CopClient extends CopClientBase implements Closeable {
 	private OkHttpClient httpClient = null;
 	private Signer signer = null;
 
+	@Override
 	protected Signer getSigner() {
 		Objects.requireNonNull(signer, "signer may not be null");
 		return signer;
@@ -259,9 +260,9 @@ public class CopClient extends CopClientBase implements Closeable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ResponseHandler<String> getResponseHandler() {
-		// TODO Auto-generated method stub
 		return (ResponseHandler<String>) super.getResponseHandler();
 	}
 }

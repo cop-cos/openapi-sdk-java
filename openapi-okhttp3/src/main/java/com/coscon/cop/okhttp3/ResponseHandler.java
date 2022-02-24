@@ -18,7 +18,6 @@ package com.coscon.cop.okhttp3;
 
 import java.io.IOException;
 
-
 import okhttp3.Response;
 
 /**

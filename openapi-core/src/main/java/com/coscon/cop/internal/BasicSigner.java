@@ -18,7 +18,6 @@ package com.coscon.cop.internal;
 
 import java.util.Objects;
 
-import com.coscon.cop.core.CredentialsProvider;
 import com.coscon.cop.core.SignAlgorithm;
 import com.coscon.cop.core.Signer;
 
@@ -27,6 +26,9 @@ import com.coscon.cop.core.Signer;
  *
  */
 public abstract class BasicSigner implements Signer {
+	protected static final String HEADER_USER_AGENT = "User-Agent";
+	protected static final String HEADER_ACCEPT = "Accept";
+	protected static final String HEADER_ACCEPT_CHARSET = "Accept-Charset";
 	private SignAlgorithm method;
 	
 	/**

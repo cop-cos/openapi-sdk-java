@@ -28,6 +28,21 @@ public class CommonResponse implements Serializable {
 		 */
 	private static final long serialVersionUID = 3659242084671944806L;
 	private int code;
+	private String message;
+
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * @param message the message to set
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	public CommonResponse() {
 		super();

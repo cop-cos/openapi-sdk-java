@@ -18,7 +18,6 @@ package com.coscon.cop.httpclient;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,7 +30,6 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.client.fluent.Response;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

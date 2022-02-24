@@ -17,7 +17,6 @@
 package com.coscon.cop.internal;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -99,7 +98,7 @@ public abstract class CopClientBase implements Closeable {
 		return signMethod;
 	}
 
-	private static final SignAlgorithm DEFAULT_SIGN_METHOD = SignAlgorithm.HMAC_SHA1;
+	protected static final SignAlgorithm defaultSignMethod = SignAlgorithm.HMAC_SHA1;
 
 	/**
 	 * Sets signature method.
