@@ -24,10 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.coscon.cop.core.ClientException;
-import com.coscon.cop.core.CredentialsProvider;
 import com.coscon.cop.core.Namespace;
 import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.core.Signer;
+import com.coscon.cop.core.Validator;
 
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
@@ -47,9 +46,11 @@ public abstract class CopClientBase implements Closeable {
 		super();
 		credentialsProvider = new BasicCredentialsProvider();
 		validatorProvider = new BasicValidatorProvider();
-		initialize();
 	}
 
+	/**
+	 * Initialization
+	 */
 	protected abstract void initialize();
 	/**
 	 * Build an internal httpClient instance, can only invoke once for each
@@ -131,13 +132,15 @@ public abstract class CopClientBase implements Closeable {
 	 * @return self
 	 * @throws ClientException when try to overwrite an existing apiKey/namespace pair.
 	 */
-	public CopClientBase withCredentials(Namespace namespace, String apiKey, String secretKey) throws ClientException {
+	public void withCredentials(Namespace namespace, String apiKey, String secretKey) throws ClientException {
 		if(Objects.nonNull(getCredentialsProvider().getCredentials(namespace))) {
 			throw new ClientException("Unable to overwrite credentials for namespace:"+namespace);
 		}
 		getCredentialsProvider().setCredentials(namespace,
 				new UsernamePasswordCredentials(namespace, apiKey, secretKey));
-		return this;
+	}
+	public void withValidator(Namespace namespace, Validator validator) throws ClientException {
+		getValidatorProvider().setValidator(namespace, validator);
 	}
 	/*
 	 * *****************************************************************************

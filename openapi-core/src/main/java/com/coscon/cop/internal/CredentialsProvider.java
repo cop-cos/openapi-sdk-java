@@ -14,32 +14,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.internal;
+
+import java.net.URI;
+import java.net.URL;
+
+import com.coscon.cop.core.Namespace;
 
 /**
- * Openclient
- * 
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ *
  */
-public class OpenClientException extends Exception {
+public interface CredentialsProvider {
+	
+    void setCredentials(Namespace ns, Credentials credentials);
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8926739220520532373L;
-
-	public OpenClientException() {
-	}
-
-	public OpenClientException(String message) {
-		super(message);
-	}
-
-	public OpenClientException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public OpenClientException(Throwable cause) {
-		super(cause);
-	}
+    Credentials getCredentials(Namespace ns);
+    Credentials getCredentials(URL url);
+    Credentials getCredentials(URI uri);
+    Credentials getCredentials(String url);
+    void clear();
 }

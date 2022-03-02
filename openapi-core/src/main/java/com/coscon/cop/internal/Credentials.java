@@ -14,34 +14,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.internal;
 
-import java.util.Objects;
+import com.coscon.cop.core.Namespace;
 
-public class Credential {
-	private String apiKey;
-	private String secretKey;
+/**
+ * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ *
+ */
+public interface Credentials {
 
-	/**
-	 * Construct an crenditials.
-	 */
-	public Credential(String apiKey, String secretKey) {
-		super();
-		this.apiKey = Objects.requireNonNull(apiKey, "apiKey must not be null");
-		this.secretKey = Objects.requireNonNull(secretKey, "secretKey must not be null");
-	}
-
-	/**
-	 * @return the apiKey
-	 */
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	/**
-	 * @return the secretKey
-	 */
-	public String getSecretKey() {
-		return secretKey;
-	}
+	Namespace getNamespace();
+	BasicUserPrincipal getPrincipal();
+	String getPassword();
 }

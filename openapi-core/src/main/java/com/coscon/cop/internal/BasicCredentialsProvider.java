@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.coscon.cop.core.Credentials;
-import com.coscon.cop.core.CredentialsProvider;
 import com.coscon.cop.core.Namespace;
 
 /**
@@ -38,13 +36,16 @@ public class BasicCredentialsProvider implements CredentialsProvider {
 	 */
 	public BasicCredentialsProvider() {
 		super();
-		this.credentialsMap = new ConcurrentHashMap<Namespace, Credentials>();
+		this.credentialsMap = new ConcurrentHashMap<>();
 	}
 	@Override
 	public void setCredentials(Namespace ns, Credentials credentials) {
 		Objects.requireNonNull(ns, "namespace may not be null");
 		Objects.requireNonNull(credentials, "credentials may not be null");
-		credentialsMap.put(ns, credentials);
+		Credentials old = credentialsMap.get(ns);
+		if(! credentials.equals(old)) {
+			credentialsMap.put(ns, credentials);
+		}
 	}
 
 	@Override

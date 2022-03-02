@@ -30,12 +30,12 @@ import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.entity.ContentType;
 
 import com.coscon.cop.core.ClientException;
-import com.coscon.cop.core.Credentials;
-import com.coscon.cop.core.CredentialsProvider;
 import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.core.Signer;
 import com.coscon.cop.internal.BasicSigner;
+import com.coscon.cop.internal.Credentials;
+import com.coscon.cop.internal.CredentialsProvider;
 import com.coscon.cop.internal.HmacPureExecutor;
+import com.coscon.cop.internal.Signer;
 
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
@@ -98,7 +98,7 @@ class CopClientSigner extends BasicSigner implements Signer {
 			if (uaHeader == null || StringUtils.isEmpty(uaHeader.getValue())) {
 				request.setHeader(HEADER_USER_AGENT, CopClient.COP_SDK_VERSION);
 			} else {
-				if (!uaHeader.getValue().toUpperCase().contains(CopClient.COP_SDK_VERSION.toUpperCase())) {
+				if(!StringUtils.containsIgnoreCase(uaHeader.getValue(),CopClient.COP_SDK_VERSION)) {
 					StringBuilder uaBuilder = new StringBuilder();
 					uaBuilder.append(uaHeader.getValue()).append(" ").append(CopClient.COP_SDK_VERSION);
 					request.setHeader(HEADER_USER_AGENT, uaBuilder.toString());

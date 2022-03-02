@@ -14,20 +14,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
-
-import java.io.IOException;
-
-import com.coscon.cop.core.Validator;
-
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
  *
  */
-class DefaultClientValidator implements Validator {
-
-	@Override
-	public boolean validate(Object response) throws IOException {
-		return true;
-	}
-}
+package com.coscon.cop.common;

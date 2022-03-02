@@ -14,12 +14,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.internal;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import org.apache.commons.lang3.EnumUtils;
+
+import com.coscon.cop.common.CopClientSDKException;
+import com.coscon.cop.core.Namespace;
 
 /**
  * @author Chen Jipeng / chenjp2@coscon.com
@@ -32,9 +34,9 @@ public interface Signer {
 	 * @param provider to determine {@link Credentials}
 	 * @param request origin request entity.
 	 * @return request with signature
-	 * @throws IOException
+	 * @throws CopClientSDKException when error occurs
 	 */
-	Object sign(CredentialsProvider provider, Object request) throws IOException;
+	Object sign(CredentialsProvider provider, Object request) throws CopClientSDKException;
 	
 	/**
 	 * Check whether need signature for the specific uri request.

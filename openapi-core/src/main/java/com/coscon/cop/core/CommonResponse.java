@@ -23,10 +23,7 @@ import java.io.Serializable;
  *
  */
 public class CommonResponse implements Serializable {
-	/**
-		 * 
-		 */
-	private static final long serialVersionUID = 3659242084671944806L;
+	private static final long serialVersionUID = -5569810673702220286L;
 	private int code;
 	private String message;
 

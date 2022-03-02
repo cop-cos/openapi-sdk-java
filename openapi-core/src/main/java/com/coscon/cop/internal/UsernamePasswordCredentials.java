@@ -18,7 +18,6 @@ package com.coscon.cop.internal;
 
 import java.util.Objects;
 
-import com.coscon.cop.core.Credentials;
 import com.coscon.cop.core.Namespace;
 
 /**

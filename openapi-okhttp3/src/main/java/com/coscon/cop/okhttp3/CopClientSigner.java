@@ -23,17 +23,18 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.coscon.cop.core.ClientException;
-import com.coscon.cop.core.Credentials;
-import com.coscon.cop.core.CredentialsProvider;
+import com.coscon.cop.common.CopClientSDKException;
 import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.core.Signer;
 import com.coscon.cop.internal.BasicSigner;
+import com.coscon.cop.internal.Credentials;
+import com.coscon.cop.internal.CredentialsProvider;
 import com.coscon.cop.internal.HmacPureExecutor;
+import com.coscon.cop.internal.Signer;
 
 import okhttp3.HttpUrl;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okio.Buffer;
 
 /**
@@ -50,7 +51,6 @@ class CopClientSigner extends BasicSigner implements Signer {
 		StringBuilder requestLineBuilder = new StringBuilder();
 		requestLineBuilder.append(request.method()).append(' ');
 		if (!request.isHttps()) {
-			// && chain.connection().route().proxy().type() == Proxy.Type.HTTP) {
 			throw new IllegalStateException("Unsecure request is not allowed");
 		} else {
 			String path = url.encodedPath();
@@ -70,17 +70,20 @@ class CopClientSigner extends BasicSigner implements Signer {
 			throw new IllegalArgumentException("Request request is expected.");
 		}
 		Request request = (Request) rawRequest;
+		Objects.requireNonNull(request.url(), "request url may not be null");
+
 		final Credentials credentials = provider.getCredentials(request.url().toString());
-		if(Objects.isNull(credentials)) {
+		if (Objects.isNull(credentials)) {
 			throw new IOException("Unable to find suitable credentials");
 		}
-		
-		byte[] httpContent = new byte[0];
 
-		if ("POST".equalsIgnoreCase(request.method())) {
-			final Buffer buffer = new Buffer();
-			request.body().writeTo(buffer);
-			httpContent = buffer.readByteArray();
+		byte[] httpContent = new byte[0];
+		RequestBody body = request.body();
+		if (body!=null && "POST".equalsIgnoreCase(request.method())) {
+			try (final Buffer buffer = new Buffer()) {
+				body.writeTo(buffer);
+				httpContent = buffer.readByteArray();
+			}
 		}
 
 		try {
@@ -116,7 +119,7 @@ class CopClientSigner extends BasicSigner implements Signer {
 				uaBuilder.append(CopClient.COP_SDK_VERSION);
 			} else {
 				uaBuilder.append(ua);
-				if (!ua.toUpperCase().contains(CopClient.COP_SDK_VERSION.toUpperCase())) {
+				if (!StringUtils.containsIgnoreCase(ua, CopClient.COP_SDK_VERSION)) {
 					uaBuilder.append(" ");
 					uaBuilder.append(CopClient.COP_SDK_VERSION);
 				}
@@ -125,7 +128,7 @@ class CopClientSigner extends BasicSigner implements Signer {
 			newBuilder = newBuilder.header(HEADER_ACCEPT, "application/json");
 			newBuilder = newBuilder.header(HEADER_ACCEPT_CHARSET, "utf-8");
 			return newBuilder.build();
-		} catch (ClientException e) {
+		} catch (CopClientSDKException e) {
 			throw new IOException(e.getMessage(), e);
 		}
 	}

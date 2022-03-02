@@ -48,6 +48,7 @@ Maven Central - 待发布。
 			System.getenv("cop.pp.secretKey"));
 	
 	// ... 接下来，你仍然可以通过builder设置各种参数，来配置你的HttpClienthttpClientBuilder
+	copClient.getHttpClientBuilder().xxx()
 	
 	// 基于以上设置，构建httpClient
 	copClient.buildHttpClient();
@@ -74,6 +75,7 @@ Maven Central - 待发布。
 			System.getenv("cop.pp.secretKey"));
 	
 	// ... 接下来，你仍然可以通过builder设置各种参数，来配置你的HttpClienthttpClientBuilder
+	copClient.getHttpClientBuilder().xxx()
 	
 	// 基于以上设置，构建httpClient
 	copClient.buildHttpClient();

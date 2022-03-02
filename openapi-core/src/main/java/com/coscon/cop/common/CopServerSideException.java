@@ -14,22 +14,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
-
-import java.net.URI;
-import java.net.URL;
+package com.coscon.cop.common;
 
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
  *
  */
-public interface CredentialsProvider {
-	
-    void setCredentials(Namespace ns, Credentials credentials);
+public class CopServerSideException extends Exception  {
 
-    Credentials getCredentials(Namespace ns);
-    Credentials getCredentials(URL url);
-    Credentials getCredentials(URI uri);
-    Credentials getCredentials(String url);
-    void clear();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3942214632821595956L;
+	private int code;
+	/**
+	 * 
+	 */
+	public CopServerSideException(int code, String message) {
+		super(message);
+		this.code = code;
+	}
+	/**
+	 * @return the code
+	 */
+	public int getCode() {
+		return code;
+	}
+	@Override
+	public String toString() {
+		return "CopServerSideException [getCode()=" + getCode() + ", getMessage()=" + getMessage() + "]";
+	}
 }

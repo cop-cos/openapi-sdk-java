@@ -24,10 +24,11 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import com.coscon.cop.core.ClientException;
+import com.coscon.cop.common.CopClientSDKException;
 import com.coscon.cop.core.SignAlgorithm;
 
 /**
@@ -65,9 +66,10 @@ public abstract class HmacPureExecutor {
 	/**
 	 * @return the hmacAlgorithm
 	 */
-	public abstract SignAlgorithm getHmacAlgorithm() ;
-	
-	protected abstract String getApiKey() ;
+	public abstract SignAlgorithm getHmacAlgorithm();
+
+	protected abstract String getApiKey();
+
 	protected abstract String getSecretKey();
 
 	/**
@@ -79,8 +81,7 @@ public abstract class HmacPureExecutor {
 	/**
 	 * Internal representation of HmacAlgorithm
 	 * 
-	 * @param target
-	 *            {@link SignAlgorithm}
+	 * @param target {@link SignAlgorithm}
 	 * @return internal representation which sent to API Gateway.
 	 */
 	protected String getInternalHmacAlgorithm() {
@@ -91,26 +92,24 @@ public abstract class HmacPureExecutor {
 	/**
 	 * Builds HMAC authentication key-value pairs.
 	 * <p>
-	 * To secure the COP transporation, the hmack key-value pairs shoud be added
-	 * as HTTP Headers.
+	 * To secure the COP transporation, the hmack key-value pairs shoud be added as
+	 * HTTP Headers.
 	 * 
 	 * @param requestLine
-	 * @param httpContent
-	 *            content before perform content gzip/deflate.
+	 * @param httpContent content before perform content gzip/deflate.
 	 * @return hmac k/v pairs.
 	 * @throws ClientException
 	 */
-	public Map<String, String> buildHmacHeaders(String requestLine, byte[] httpContent) throws ClientException {
+	public Map<String, String> buildHmacHeaders(String requestLine, byte[] httpContent) throws CopClientSDKException {
 		StringBuilder buf = new StringBuilder();
-		String guid = UUID.randomUUID().toString();
 		String date = "";
 		String encodedSignature = "";
 		String hmacAuth = "";
 		String digest = "";
-		String guidMd5 = DigestUtils.md5Hex(guid);
+		String guidMd5 = UUID.randomUUID().toString();
 
 		date = X_DATE_FORMATTER.format(new Date());
-		
+
 		/**
 		 * MUST be 'SHA-256' encryption.
 		 */
@@ -121,8 +120,8 @@ public abstract class HmacPureExecutor {
 		buf.append("\n").append(X_DIGEST).append(": ").append(digest);
 		buf.append("\n").append(X_CONTENT_MD5).append(": ").append(guidMd5);
 		buf.append("\n").append(requestLine);
-		encodedSignature = Base64.encodeBase64String(
-				HmacShaUtil.signature(getHmacAlgorithm().getAlgorithm(), buf.toString(), getSecretKey()));
+		encodedSignature = Base64.encodeBase64String(HmacShaUtil.signature(getHmacAlgorithm().getAlgorithm(),
+				StringUtils.getBytesUtf8(buf.toString()), getSecretKey()));
 		buf.setLength(0);
 		buf.append("hmac username=\"").append(getApiKey())
 				.append("\",algorithm=\"" + getInternalHmacAlgorithm() + "\",headers=\"").append(X_DATE).append(" ")

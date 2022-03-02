@@ -30,9 +30,9 @@ import org.apache.commons.io.IOUtils;
 import com.coscon.cop.core.ClientException;
 import com.coscon.cop.core.Namespace;
 import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.core.Signer;
 import com.coscon.cop.core.Validator;
 import com.coscon.cop.internal.CopClientBase;
+import com.coscon.cop.internal.Signer;
 
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -75,10 +75,19 @@ public class CopClient extends CopClientBase implements Closeable {
 
 		@Override
 		public String handleResponse(Response response) throws IOException {
+			if (Objects.isNull(response)) {
+				throw new IOException("http response is null");
+			}
 			final int status = response.code();
 			final String reasonPhrase = response.message();
 			if (status >= 200 && status < 300) {
-				String content = response.body().string();
+				String content = "";
+				ResponseBody body = response.body();
+				if ( body!= null) {
+					content = body.string();
+				} else {
+					content = "";
+				}
 				response.close();
 				return content;
 			} else {
@@ -96,7 +105,9 @@ public class CopClient extends CopClientBase implements Closeable {
 	}
 
 	public static CopClient newInstance() {
-		return new CopClient();
+		CopClient client = new CopClient();
+		client.initialize();
+		return client;
 	}
 
 	private OkHttpClient httpClient = null;
@@ -128,23 +139,21 @@ public class CopClient extends CopClientBase implements Closeable {
 	public OkHttpClient getHttpClient() {
 		return httpClient;
 	}
-
-	@Override
-	public CopClient withCredentials(Namespace namespace, String apiKey, String secretKey) throws ClientException {
-		return (CopClient) super.withCredentials(namespace, apiKey, secretKey);
-	}
-
 	/**
 	 * @return
 	 */
 	private Interceptor newSignRequestInterceptor() {
 		return new Interceptor() {
 			protected Response convertToRepeatableResponse(Response response) throws IOException {
-				try (ResponseBody body = response.body(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-					IOUtils.copy(body.byteStream(), baos);
+				ResponseBody body = response.body();
+				if(body == null) {
+					return response;
+				}
+				try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) { 
+						IOUtils.copy(body.byteStream(), baos); 
 					baos.flush();
 					return response.newBuilder()
-							.body(ResponseBody.create(baos.toByteArray(), response.body().contentType())).build();
+							.body(ResponseBody.create(baos.toByteArray(), body.contentType())).build();
 				}
 			}
 

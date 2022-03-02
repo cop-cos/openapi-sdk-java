@@ -14,32 +14,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.okhttp3;
+
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 /**
- * Openclient
- * 
+ * This class provides a basic CopAware implementation of {@link Interceptor}.
+ * <p>To implements 
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ *
  */
-public class ClientException extends Exception {
+public abstract class AbstractCopAwareInterceptor implements Interceptor {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8926739220520532373L;
-
-	public ClientException() {
+	protected boolean accept(Chain chain) {
+		return true;
 	}
-
-	public ClientException(String message) {
-		super(message);
+	@Override
+	public final Response intercept(Chain chain) throws IOException {
+		if(accept(chain)) {
+			return intercept0(chain);
+		} else {
+			return chain.proceed(chain.request());
+		}
 	}
-
-	public ClientException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public ClientException(Throwable cause) {
-		super(cause);
-	}
+	protected abstract Response intercept0(Chain chain) throws IOException;
 }

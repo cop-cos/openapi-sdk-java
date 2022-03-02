@@ -19,7 +19,6 @@ package com.coscon.cop.internal;
 import java.util.Objects;
 
 import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.core.Signer;
 
 /**
  * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>

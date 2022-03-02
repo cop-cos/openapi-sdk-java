@@ -67,23 +67,19 @@ public class CopClient extends CopClientBase implements Closeable {
 	@Override
 	protected void initialize() {
 		httpClientBuilder = HttpClientBuilder.create();
-		httpClientBuilder.setConnectionTimeToLive(30, TimeUnit.SECONDS);
 		setSignMethod(defaultSignMethod);
 		setResponseHandler(defaultResponseHandler);
 	}
 
 	public static CopClient newInstance() {
-		return new CopClient();
-	}
-
-	@Override
-	public CopClient withCredentials(Namespace namespace, String apiKey, String secretKey) throws ClientException {
-		return (CopClient) super.withCredentials(namespace, apiKey, secretKey);
+		CopClient client = new CopClient();
+		client.initialize();
+		return client;
 	}
 
 	private HttpClientBuilder httpClientBuilder;
 
-	private HttpClient httpClient = null;
+	private CloseableHttpClient httpClient = null;
 
 	private Executor executor = null;
 
@@ -121,7 +117,7 @@ public class CopClient extends CopClientBase implements Closeable {
 	/**
 	 * @return the executor
 	 */
-	private Executor getExecutor() {
+	public Executor getExecutor() {
 		Objects.requireNonNull(executor, "executor may not be null");
 		return executor;
 	}
@@ -139,12 +135,13 @@ public class CopClient extends CopClientBase implements Closeable {
 	private HttpRequestInterceptor newSignRequestInterceptor() {
 		return new HttpRequestInterceptor() {
 			@Override
-			public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+			public void process(HttpRequest request, HttpContext context) throws IOException {
 				if(request instanceof HttpRequestWrapper) {
-					
 					HttpRequestWrapper wrapper = (HttpRequestWrapper)request;
-					String uri = wrapper.getTarget().toURI() + wrapper.getURI().toString();
-					if(getSigner().acceptRequest(uri)) {
+					StringBuilder uriBuilder = new StringBuilder();
+					uriBuilder.append(wrapper.getTarget().toURI());
+					uriBuilder.append(wrapper.getURI());
+					if(getSigner().acceptRequest(uriBuilder.toString())) {
 						getSigner().sign(getCredentialsProvider(), request);
 					}
 				}

@@ -23,8 +23,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.binary.StringUtils;
 
-import com.coscon.cop.core.ClientException;
+import com.coscon.cop.common.CopClientSDKException;
 import com.coscon.cop.core.SignAlgorithm;
 
 /**
@@ -38,41 +39,40 @@ public class HmacShaUtil {
 		
 	}
 	/**
-	 * Create a signature for specific data.
+	 * Create a signature for specific data with given algorithm and key.
 	 * 
 	 * @param hmacAlgorithm
 	 * @param data
-	 *            source string data
+	 *            source data in bytes
 	 * @param key
 	 *            the secretkey
 	 * @return bytes represents the hashing signature result.
 	 * @throws ClientException
 	 */
-	public static byte[] signature(String hmacAlgorithm, String data, String key) throws ClientException {
+	public static byte[] signature(String hmacAlgorithm, byte[] data, String key) throws CopClientSDKException {
 		try {
 			SignAlgorithm algo = SignAlgorithm.validate(hmacAlgorithm);
-			SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), algo.getAlgorithm());
+			SecretKeySpec signingKey = new SecretKeySpec(StringUtils.getBytesUtf8(key), algo.getAlgorithm());
 			Mac mac = Mac.getInstance(algo.getAlgorithm());
 			mac.init(signingKey);
-			return mac.doFinal(data.getBytes());
+			return mac.doFinal(data);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
-			throw new ClientException(e.getMessage(), e);
+			throw new CopClientSDKException(e.getMessage(), e);
 		}
 	}
-
 	/**
 	 * Create a signature for specific data.
 	 * 
 	 * @param hmacAlgorithm
 	 * @param data
-	 *            source string data
+	 *            source data
 	 * @param key
 	 *            the secret key
 	 * @return hexString represents the hashing signature result.
 	 * @throws ClientException
 	 */
-	public static String signatureHex(String hmacAlgorithm, String data, String key)
-			throws ClientException{
+	public static String signatureHex(String hmacAlgorithm, byte[] data, String key)
+			throws CopClientSDKException{
 		return Hex.encodeHexString(signature(hmacAlgorithm, data, key));
 	}
 }
