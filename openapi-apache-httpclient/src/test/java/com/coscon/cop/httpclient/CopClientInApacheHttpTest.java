@@ -49,7 +49,7 @@ import com.coscon.cop.core.Validator;
 import com.google.gson.Gson;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class CopClientInApacheHttpTest {

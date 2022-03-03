@@ -14,13 +14,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common.provider;
 
 import java.security.Principal;
 import java.util.Objects;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class BasicUserPrincipal implements Principal {

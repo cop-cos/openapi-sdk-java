@@ -26,12 +26,12 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.binary.StringUtils;
 
 import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.core.SignAlgorithm;
+import com.coscon.cop.common.SignAlgorithm;
 
 /**
  * Hmac utility.
  * 
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  * @emailto ch_jp@msn.com
  */
 public class HmacShaUtil {
@@ -59,20 +59,5 @@ public class HmacShaUtil {
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			throw new CopClientSDKException(e.getMessage(), e);
 		}
-	}
-	/**
-	 * Create a signature for specific data.
-	 * 
-	 * @param hmacAlgorithm
-	 * @param data
-	 *            source data
-	 * @param key
-	 *            the secret key
-	 * @return hexString represents the hashing signature result.
-	 * @throws ClientException
-	 */
-	public static String signatureHex(String hmacAlgorithm, byte[] data, String key)
-			throws CopClientSDKException{
-		return Hex.encodeHexString(signature(hmacAlgorithm, data, key));
 	}
 }

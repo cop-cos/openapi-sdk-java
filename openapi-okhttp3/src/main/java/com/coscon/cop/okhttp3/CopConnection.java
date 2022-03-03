@@ -24,6 +24,7 @@ import java.time.Duration;
 import org.apache.commons.io.IOUtils;
 
 import com.coscon.cop.common.CopClientSDKException;
+import com.coscon.cop.common.CopConstants;
 
 import okhttp3.Authenticator;
 import okhttp3.Headers;
@@ -36,56 +37,25 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
-public class CopConnection {
+public abstract class CopConnection {
 
 	private OkHttpClient.Builder httpClientBuilder;
 	private OkHttpClient httpClient;
 
-	private static final String HEADER_REQUEST_ID = "X-Coscon-RequestId";
-	private final MediaType defaultMediaType=MediaType.parse("application/json;charset=UTF-8");
-	
-	public CopConnection(int connTimeout, int readTimeout, int writeTimeout) {
+	protected CopConnection(int connTimeout, int readTimeout, int writeTimeout) {
 		this.httpClientBuilder = new OkHttpClient.Builder().connectTimeout(Duration.ofSeconds(connTimeout))
 				.readTimeout(Duration.ofSeconds(readTimeout)).writeTimeout(Duration.ofSeconds(writeTimeout));
 
 	}
 
-	/**
-	 * @return
-	 */
-	private Interceptor newSignRequestInterceptor() {
-		return new Interceptor() {
-			protected Response convertToRepeatableResponse(Response response) throws IOException {
-				ResponseBody body = response.body();
-				if (body == null) {
-					return response;
-				}
-				try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-					IOUtils.copy(body.byteStream(), baos);
-					baos.flush();
-					return response.newBuilder().body(ResponseBody.create(baos.toByteArray(), body.contentType()))
-							.build();
-				}
-			}
-
-			@Override
-			public Response intercept(Chain chain) throws IOException {
-				return chain.proceed(chain.request());
-			}
-		};
-	}
+	protected abstract void initialize();
 
 	public void addInterceptor(Interceptor interceptor) {
 		this.httpClientBuilder.addInterceptor(interceptor);
 	}
-
-	public void addNetworkInterceptor(Interceptor interceptor) {
-		this.httpClientBuilder.addNetworkInterceptor(interceptor);
-	}
-
 	public void setProxy(Proxy proxy) {
 		this.httpClientBuilder.proxy(proxy);
 	}
@@ -93,95 +63,24 @@ public class CopConnection {
 	public void setProxyAuthenticator(Authenticator authenticator) {
 		this.httpClientBuilder.proxyAuthenticator(authenticator);
 	}
-
 	/**
-	 * 
-	 * @return
+	 * Call this method to build an internal client.
+	 * <p>Programmer needs call this method before communicate with COP service.
 	 */
-	public CopConnection ready() {
+	public CopConnection buildInternalClient() {
 		this.httpClient = this.httpClientBuilder.build();
 		this.httpClientBuilder = null;
 		return this;
 	}
 
-	public Response doRequest(Request request) throws CopClientSDKException {
-		Response response = null;
-		try {
-			response = this.httpClient.newCall(request).execute();
-		} catch (IOException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
+	protected void checkInternalClient() throws CopClientSDKException {
+		if (this.httpClient == null) {
+			throw new CopClientSDKException("httpClient is not ready to use, call #buildInternalClient before use.");
 		}
-		return response;
 	}
 
-	public Response doGetRequest(String url) throws CopClientSDKException {
-		Request request = null;
-		try {
-			request = new Request.Builder().url(url).get().build();
-		} catch (IllegalArgumentException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
-		}
-		return this.doRequest(request);
-	}
-
-	public Response getRequest(String url, Headers headers) throws CopClientSDKException {
-		Request request = null;
-		try {
-			request = new Request.Builder().url(url).headers(headers).get().build();
-		} catch (IllegalArgumentException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
-		}
-
-		return this.doRequest(request);
-	}
-
-	public Response postRequest(String url, String body) throws CopClientSDKException {
-		MediaType contentType = defaultMediaType;
-		Request request = null;
-		try {
-			request = new Request.Builder().url(url).post(RequestBody.create(body, contentType)).build();
-		} catch (IllegalArgumentException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
-		}
-
-		return this.doRequest(request);
-	}
-
-	public Response postRequest(String url, String body, Headers headers) throws CopClientSDKException {
-		MediaType contentType = MediaType.parse(headers.get("Content-Type"));
-		if(contentType ==null) {
-			contentType = defaultMediaType;
-		}
-		Request request = null;
-		try {
-			request = new Request.Builder().url(url).post(RequestBody.create(body, contentType)).headers(headers)
-					.build();
-		} catch (IllegalArgumentException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
-		}
-
-		return this.doRequest(request);
-	}
-
-	public Response postRequest(String url, byte[] body, Headers headers) throws CopClientSDKException {
-		MediaType contentType = MediaType.parse(headers.get("Content-Type"));
-		if(contentType ==null) {
-			contentType = defaultMediaType;
-		}
-		Request request = null;
-		try {
-			request = new Request.Builder().url(url).post(RequestBody.create(body, contentType)).headers(headers)
-					.build();
-		} catch (IllegalArgumentException e) {
-			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), null,
-					request.header(HEADER_REQUEST_ID));
-		}
-
-		return this.doRequest(request);
+	public Response doRequest(Request request) throws IOException, CopClientSDKException{
+		checkInternalClient();
+		return this.httpClient.newCall(request).execute();
 	}
 }

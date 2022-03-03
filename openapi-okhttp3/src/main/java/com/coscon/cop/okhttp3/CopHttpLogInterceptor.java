@@ -30,47 +30,32 @@ import okhttp3.Response;
  * This class provides logging support for Cop-related communication via
  * {@link Interceptor}.
  * 
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class CopHttpLogInterceptor extends AbstractCopAwareInterceptor implements Interceptor {
 
-	private boolean debugEnabled = false;
-	private final Logger logger;
+	private final CopLog logger;
 
 	/**
 	 * Constructs a new instance with given logger name.
 	 * 
 	 * @param name of logger.
 	 */
-	public CopHttpLogInterceptor(String name) {
-		this(name, false);
-	}
-
-	/**
-	 * Constructs a new instance with specific logger name and debug mode。
-	 * 
-	 * @param name    of logger.
-	 * @param isDebug <tt>true</tt> indicates the logger print HTTP send/receive
-	 *                message.
-	 */
-	public CopHttpLogInterceptor(String name, boolean isDebug) {
+	public CopHttpLogInterceptor(CopLog logger) {
 		super();
-		this.logger = Logger.getLogger(name);
-		this.debugEnabled = isDebug;
+		this.logger = logger;
 	}
 
 	/**
 	 * @return the debugEnabled
 	 */
 	public boolean isDebugEnabled() {
-		return debugEnabled;
+		return logger.isDebugEnabled();
 	}
 
 	protected void info(final String message) {
-		if (isDebugEnabled()) {
-			this.logger.info(message);
-		}
+		logger.info(message);
 	}
 
 	@Override
@@ -88,7 +73,7 @@ public class CopHttpLogInterceptor extends AbstractCopAwareInterceptor implement
 			StringBuilder messageBuilder = new StringBuilder();
 			messageBuilder.append("Recieve response. Response url: ").append(response.request().url().toString())
 					.append(", response headers: ").append(response.headers().toString())
-					.append(", response body information: ").append(response.body().toString());
+					.append(", response body information: ").append(response.body());
 			String message = RegExUtils.replaceAll(messageBuilder.toString(), "\n", ";");
 			info(message);
 		}

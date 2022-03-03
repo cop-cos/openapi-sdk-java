@@ -15,7 +15,7 @@
  * under the License.
  */
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 package com.coscon.cop.common;

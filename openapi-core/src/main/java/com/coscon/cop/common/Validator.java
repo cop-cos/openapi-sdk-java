@@ -14,24 +14,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common;
 
-import java.net.URI;
-import java.net.URL;
-
-import com.coscon.cop.core.Namespace;
+import java.io.IOException;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng / chenjp2@coscon.com
  *
  */
-public interface CredentialsProvider {
-	
-    void setCredentials(Namespace ns, Credentials credentials);
-
-    Credentials getCredentials(Namespace ns);
-    Credentials getCredentials(URL url);
-    Credentials getCredentials(URI uri);
-    Credentials getCredentials(String url);
-    void clear();
+public interface Validator {
+	/**
+	 * Validate response.
+	 * 
+	 * @param response
+	 *            from cop server.
+	 * @return result returns <code>true</code> if the response is valid.
+	 * @throws IOException
+	 */
+	public boolean validate(Object response) throws IOException;
 }

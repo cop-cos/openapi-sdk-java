@@ -14,13 +14,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common.provider;
 
-import com.coscon.cop.core.Namespace;
-import com.coscon.cop.core.Validator;
+import com.coscon.cop.common.Namespace;
+import com.coscon.cop.common.Validator;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public interface ValidatorProvider {

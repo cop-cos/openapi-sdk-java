@@ -39,7 +39,7 @@ import com.coscon.cop.core.ClientException;
 import com.coscon.cop.core.Namespace;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class CopClientInApacheHttpTest2 {

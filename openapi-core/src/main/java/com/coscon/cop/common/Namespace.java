@@ -14,22 +14,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
-
-import java.io.IOException;
+package com.coscon.cop.common;
 
 /**
- * @author Chen Jipeng / chenjp2@coscon.com
- *
+ * COP Namespace
+ * @author Chen Jipeng 
+ * 
  */
-public interface Validator {
+public enum Namespace {
+
+	COP_PUBLIC_PROD("https://api.lines.coscoshipping.com/service"),
+	COP_PUBLIC_PP("https://api-pp.lines.coscoshipping.com/service"),
+	COP_INTERNAL_PROD("https://api-internal.lines.coscoshipping.com/service"),
+	COP_INTERNAL_PP("https://api-pp-internal.lines.coscoshipping.com/service");
+
+	private String prefix;
+
+	private Namespace(String prefix) {
+		this.prefix = prefix;
+	}
 	/**
-	 * Validate response.
-	 * 
-	 * @param response
-	 *            from cop server.
-	 * @return result returns <code>true</code> if the response is valid.
-	 * @throws IOException
+	 * @return the prefix
 	 */
-	public boolean validate(Object response) throws IOException;
+	public String getPrefix() {
+		return prefix;
+	}
 }

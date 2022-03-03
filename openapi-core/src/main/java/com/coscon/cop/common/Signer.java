@@ -14,14 +14,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common;
 
 import java.util.Objects;
 
 import org.apache.commons.lang3.EnumUtils;
 
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.core.Namespace;
+import com.coscon.cop.common.provider.CredentialsProvider;
 
 /**
  * @author Chen Jipeng / chenjp2@coscon.com

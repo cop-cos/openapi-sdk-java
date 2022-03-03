@@ -14,12 +14,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.common;
 
 /**
  * Supported algorithm.
  * 
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  */
 public enum SignAlgorithm {
 	/**

@@ -16,59 +16,81 @@
  */
 package com.coscon.cop.okhttp3;
 
-import com.coscon.cop.core.SignAlgorithm;
+import java.util.Objects;
+
+import com.coscon.cop.common.SignAlgorithm;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class ClientSettings {
-
+	private int connectionTimeout;
+	private int readTimout;
+	private int writeTimeout;
+	private boolean debugEnabled;
+	private SignAlgorithm signMethod;
 	/**
-	 * @return
+	 * Creates a clientSetting with default settings.
 	 */
-	public String getProtocol() {
-		// TODO Auto-generated method stub
-		return null;
+	public ClientSettings() {
+		this(SignAlgorithm.HMAC_SHA1,false,30,10,10);
 	}
-
+	
+	/**
+	 * @param debugEnabled the debugEnabled to set
+	 */
+	public void setDebugEnabled(boolean debugEnabled) {
+		this.debugEnabled = debugEnabled;
+	}
+	/**
+	 * Creates a clientSetting
+	 * @param signMethod 
+	 * @param debugEnabled
+	 * @param connectionTimeout
+	 * @param readTimeout
+	 * @param writeTimeout
+	 */
+	public ClientSettings(SignAlgorithm signMethod, boolean debugEnabled, int connectionTimeout, int readTimeout, int writeTimeout) {
+		super();
+		this.signMethod = Objects.requireNonNull(signMethod,"signMethod may not be null");
+		this.debugEnabled = debugEnabled;
+		this.connectionTimeout = connectionTimeout;
+		this.readTimout = readTimeout;
+		this.writeTimeout = writeTimeout;
+	}
 	/**
 	 * @return
 	 */
-	public int getConnTimeout() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getConnectionTimeout() {
+		return connectionTimeout;
 	}
 
 	/**
 	 * @return
 	 */
 	public int getReadTimeout() {
-		// TODO Auto-generated method stub
-		return 0;
+		return readTimout;
 	}
 
 	/**
 	 * @return
 	 */
 	public int getWriteTimeout() {
-		// TODO Auto-generated method stub
-		return 0;
+		return writeTimeout;
 	}
 
 	/**
 	 * @return
 	 */
 	public boolean isDebugEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return debugEnabled;
 	}
 
 	/**
 	 * @return
 	 */
 	public String getProxyHost() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -76,7 +98,6 @@ public class ClientSettings {
 	 * @return
 	 */
 	public int getProxyPort() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -84,7 +105,6 @@ public class ClientSettings {
 	 * @return
 	 */
 	public String getProxyUsername() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -92,7 +112,6 @@ public class ClientSettings {
 	 * @return
 	 */
 	public String getProxyPassword() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -100,8 +119,7 @@ public class ClientSettings {
 	 * @return
 	 */
 	public SignAlgorithm getSignMethod() {
-		// TODO Auto-generated method stub
-		return null;
+		return signMethod;
 	}
 
 }

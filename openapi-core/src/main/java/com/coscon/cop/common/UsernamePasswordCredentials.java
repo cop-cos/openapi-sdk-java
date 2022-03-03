@@ -14,14 +14,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common;
 
 import java.util.Objects;
 
-import com.coscon.cop.core.Namespace;
+import com.coscon.cop.common.provider.BasicUserPrincipal;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class UsernamePasswordCredentials implements Credentials {

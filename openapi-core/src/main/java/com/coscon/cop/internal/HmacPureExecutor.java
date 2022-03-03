@@ -29,7 +29,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.core.SignAlgorithm;
+import com.coscon.cop.common.SignAlgorithm;
 
 /**
  * A Pure Excutor to perform HTTP hmac digest & encryption, used to protect COP
@@ -42,7 +42,7 @@ import com.coscon.cop.core.SignAlgorithm;
  * <p>
  * 
  * @author 陈吉鹏
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  * @emailto ch_jp@msn.com
  */
 public abstract class HmacPureExecutor {

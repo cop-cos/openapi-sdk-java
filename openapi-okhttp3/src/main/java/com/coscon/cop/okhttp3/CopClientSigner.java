@@ -24,12 +24,12 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.core.SignAlgorithm;
-import com.coscon.cop.internal.BasicSigner;
-import com.coscon.cop.internal.Credentials;
-import com.coscon.cop.internal.CredentialsProvider;
+import com.coscon.cop.common.Credentials;
+import com.coscon.cop.common.HttpMethods;
+import com.coscon.cop.common.SignAlgorithm;
+import com.coscon.cop.common.Signer;
+import com.coscon.cop.common.provider.CredentialsProvider;
 import com.coscon.cop.internal.HmacPureExecutor;
-import com.coscon.cop.internal.Signer;
 
 import okhttp3.HttpUrl;
 import okhttp3.Protocol;
@@ -38,12 +38,14 @@ import okhttp3.RequestBody;
 import okio.Buffer;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
-class CopClientSigner extends BasicSigner implements Signer {
+class CopClientSigner implements Signer {
+	private final SignAlgorithm signMethod;
 	public CopClientSigner(SignAlgorithm method) {
-		super(method);
+		super();
+		this.signMethod = Objects.requireNonNull(method,"signMethod may not be null");
 	}
 
 	private String parseRequestLine(Request request) {
@@ -65,7 +67,7 @@ class CopClientSigner extends BasicSigner implements Signer {
 	}
 
 	@Override
-	public Object sign(CredentialsProvider provider, Object rawRequest) throws IOException {
+	public Object sign(final CredentialsProvider provider, Object rawRequest) throws CopClientSDKException {
 		if (!(rawRequest instanceof Request)) {
 			throw new IllegalArgumentException("Request request is expected.");
 		}
@@ -74,62 +76,45 @@ class CopClientSigner extends BasicSigner implements Signer {
 
 		final Credentials credentials = provider.getCredentials(request.url().toString());
 		if (Objects.isNull(credentials)) {
-			throw new IOException("Unable to find suitable credentials");
+			throw new CopClientSDKException("Unable to find suitable credentials");
 		}
 
 		byte[] httpContent = new byte[0];
 		RequestBody body = request.body();
-		if (body!=null && "POST".equalsIgnoreCase(request.method())) {
+		if (body != null && HttpMethods.POST.getMethod().equalsIgnoreCase(request.method())) {
 			try (final Buffer buffer = new Buffer()) {
 				body.writeTo(buffer);
 				httpContent = buffer.readByteArray();
+			} catch (IOException e) {
+				throw new CopClientSDKException(e.getMessage());
 			}
 		}
 
-		try {
-			final CopClientSigner signerSelf = this;
-			HmacPureExecutor executor = new HmacPureExecutor() {
+		final CopClientSigner signerSelf = this;
+		HmacPureExecutor executor = new HmacPureExecutor() {
 
-				@Override
-				protected String getSecretKey() {
-					return credentials.getPassword();
-				}
-
-				@Override
-				public SignAlgorithm getHmacAlgorithm() {
-					return signerSelf.getMethod();
-				}
-
-				@Override
-				protected String getApiKey() {
-					return credentials.getPrincipal().getName();
-				}
-			};
-			Map<String, String> headers = executor.buildHmacHeaders(parseRequestLine(request), httpContent);
-			Request.Builder newBuilder = request.newBuilder();
-			if (headers != null) {
-				for (Entry<String, String> e : headers.entrySet()) {
-					newBuilder = newBuilder.header(e.getKey(), e.getValue());
-				}
+			@Override
+			protected String getSecretKey() {
+				return credentials.getPassword();
 			}
-			String ua = request.header(HEADER_USER_AGENT);
-			StringBuilder uaBuilder = new StringBuilder();
-
-			if (StringUtils.isEmpty(ua)) {
-				uaBuilder.append(CopClient.COP_SDK_VERSION);
-			} else {
-				uaBuilder.append(ua);
-				if (!StringUtils.containsIgnoreCase(ua, CopClient.COP_SDK_VERSION)) {
-					uaBuilder.append(" ");
-					uaBuilder.append(CopClient.COP_SDK_VERSION);
-				}
+			@Override
+			protected String getApiKey() {
+				return credentials.getPrincipal().getName();
 			}
-			newBuilder = newBuilder.header(HEADER_USER_AGENT, uaBuilder.toString());
-			newBuilder = newBuilder.header(HEADER_ACCEPT, "application/json");
-			newBuilder = newBuilder.header(HEADER_ACCEPT_CHARSET, "utf-8");
-			return newBuilder.build();
-		} catch (CopClientSDKException e) {
-			throw new IOException(e.getMessage(), e);
+
+			@Override
+			public SignAlgorithm getHmacAlgorithm() {
+				return signerSelf.signMethod;
+			}
+
+		};
+		Map<String, String> headers = executor.buildHmacHeaders(parseRequestLine(request), httpContent);
+		Request.Builder newBuilder = request.newBuilder();
+		if (headers != null) {
+			for (Entry<String, String> e : headers.entrySet()) {
+				newBuilder = newBuilder.header(e.getKey(), e.getValue());
+			}
 		}
+		return newBuilder.build();
 	}
 }

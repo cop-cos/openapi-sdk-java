@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common.provider;
 
 import java.net.URI;
 import java.net.URL;
@@ -22,10 +22,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.coscon.cop.core.Namespace;
+import com.coscon.cop.common.Credentials;
+import com.coscon.cop.common.Namespace;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class BasicCredentialsProvider implements CredentialsProvider {

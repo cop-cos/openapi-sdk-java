@@ -17,28 +17,40 @@
 package com.coscon.cop.common;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * Thrown to indicates that CopClientSDK receives an exception.
+ * @author Chen Jipeng
  *
  */
-public class CopServerSideException extends Exception  {
+public class CopServerBusinessException extends Exception  {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3942214632821595956L;
 	private int code;
+	private String requestId;
 	/**
-	 * 
+	 * Creates an {@link CopServerBusinessException}.
+	 * @param requestId
+	 * @param code
+	 * @param message
 	 */
-	public CopServerSideException(int code, String message) {
+	public CopServerBusinessException(String requestId, int code, String message) {
 		super(message);
 		this.code = code;
+		this.requestId=requestId;
 	}
 	/**
 	 * @return the code
 	 */
 	public int getCode() {
 		return code;
+	}
+	/**
+	 * @return the requestId
+	 */
+	public String getRequestId() {
+		return requestId;
 	}
 	@Override
 	public String toString() {

@@ -24,7 +24,7 @@ import okhttp3.Response;
 /**
  * This class provides a basic CopAware implementation of {@link Interceptor}.
  * <p>To implements 
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public abstract class AbstractCopAwareInterceptor implements Interceptor {

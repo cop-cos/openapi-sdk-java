@@ -38,7 +38,7 @@ import com.coscon.cop.internal.HmacPureExecutor;
 import com.coscon.cop.internal.Signer;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 class CopClientSigner extends BasicSigner implements Signer {

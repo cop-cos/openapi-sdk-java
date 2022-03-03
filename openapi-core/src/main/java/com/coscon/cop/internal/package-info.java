@@ -14,8 +14,4 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
- *
- */
 package com.coscon.cop.internal;

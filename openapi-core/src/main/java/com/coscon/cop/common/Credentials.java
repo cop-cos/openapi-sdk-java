@@ -14,29 +14,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.core;
+package com.coscon.cop.common;
+
+import com.coscon.cop.common.provider.BasicUserPrincipal;
 
 /**
- * COP Namespace
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a> 
- * 
+ * @author Chen Jipeng
+ *
  */
-public enum Namespace {
+public interface Credentials {
 
-	COP_PUBLIC_PROD("https://api.lines.coscoshipping.com/service"),
-	COP_PUBLIC_PP("https://api-pp.lines.coscoshipping.com/service"),
-	COP_INTERNAL_PROD("https://api-internal.lines.coscoshipping.com/service"),
-	COP_INTERNAL_PP("https://api-pp-internal.lines.coscoshipping.com/service");
-
-	private String prefix;
-
-	private Namespace(String prefix) {
-		this.prefix = prefix;
-	}
-	/**
-	 * @return the prefix
-	 */
-	public String getPrefix() {
-		return prefix;
-	}
+	Namespace getNamespace();
+	BasicUserPrincipal getPrincipal();
+	String getPassword();
 }

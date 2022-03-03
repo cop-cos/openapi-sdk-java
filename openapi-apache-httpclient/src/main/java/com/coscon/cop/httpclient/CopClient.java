@@ -50,7 +50,7 @@ import com.coscon.cop.core.Validator;
 import com.coscon.cop.internal.CopClientBase;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
 public class CopClient extends CopClientBase implements Closeable {

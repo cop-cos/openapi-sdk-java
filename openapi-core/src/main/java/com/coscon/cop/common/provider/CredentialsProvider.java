@@ -14,17 +14,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
+package com.coscon.cop.common.provider;
 
-import com.coscon.cop.core.Namespace;
+import java.net.URI;
+import java.net.URL;
+
+import com.coscon.cop.common.Credentials;
+import com.coscon.cop.common.Namespace;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  *
  */
-public interface Credentials {
+public interface CredentialsProvider {
+	
+    void setCredentials(Namespace ns, Credentials credentials);
 
-	Namespace getNamespace();
-	BasicUserPrincipal getPrincipal();
-	String getPassword();
+    Credentials getCredentials(Namespace ns);
+    Credentials getCredentials(URL url);
+    Credentials getCredentials(URI uri);
+    Credentials getCredentials(String url);
+    void clear();
 }

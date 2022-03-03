@@ -18,7 +18,7 @@ package com.coscon.cop.common;
 
 /**
  * Thrown to indicates that CopClientSDK receives an exception while communicating with COP.
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * @author Chen Jipeng
  * 
  * @since 0.0.2
  */
