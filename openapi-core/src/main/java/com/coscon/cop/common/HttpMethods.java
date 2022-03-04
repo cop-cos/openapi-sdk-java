@@ -14,30 +14,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.internal;
-
-import java.util.Objects;
-
-import com.coscon.cop.core.SignAlgorithm;
+package com.coscon.cop.common;
 
 /**
- * @author <a href="mailto:chenjp2@coscon.com">Chen Jipeng</a>
+ * HTTP Method enumeration
+ * @author Chen Jipeng
  *
  */
-public abstract class BasicSigner implements Signer {
-	protected static final String HEADER_USER_AGENT = "User-Agent";
-	protected static final String HEADER_ACCEPT = "Accept";
-	protected static final String HEADER_ACCEPT_CHARSET = "Accept-Charset";
-	private SignAlgorithm method;
+public enum HttpMethods {
+	GET("GET"),
+	POST("POST");
 	
+	private String method;
+	/**
+	 * 
+	 */
+	private HttpMethods(String method) {
+		this.method=method;
+	}
 	/**
 	 * @return the method
 	 */
-	protected SignAlgorithm getMethod() {
+	public String getMethod() {
 		return method;
-	}
-	public BasicSigner(SignAlgorithm method) {
-		super();
-		this.method = Objects.requireNonNull(method, "method may not be null");
 	}
 }
