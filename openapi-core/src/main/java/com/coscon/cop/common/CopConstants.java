@@ -23,10 +23,10 @@ package com.coscon.cop.common;
  */
 public final class CopConstants {
 	/**
-	 * Defalut constructor to ensure non-instantiability. The {@link CopConstants} instance should NOT be constructed.
+	 * Defalut constructor to prevent instantiation.
 	 */
 	private CopConstants() {
-		throw new IllegalAccessError();
+		throw new IllegalAccessError("constructor may never be invoked");
 	}
 	public static final String HTTP_METHOD_GET = "GET";
 	public static final String HTTP_METHOD_POST = "POST";

@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common;
+package com.coscon.cop.common.exception;
 
 /**
  * Thrown to indicates that CopClientSDK receives an exception.
@@ -22,13 +22,12 @@ package com.coscon.cop.common;
  *
  */
 public class CopServerBusinessException extends Exception  {
-
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3942214632821595956L;
-	private int code;
-	private String requestId;
+	private static final long serialVersionUID = -135390628985214923L;
+	private final int code;
+	private final String requestId;
 	/**
 	 * Creates an {@link CopServerBusinessException}.
 	 * @param requestId

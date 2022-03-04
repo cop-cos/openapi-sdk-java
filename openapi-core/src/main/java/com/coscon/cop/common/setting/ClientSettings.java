@@ -14,11 +14,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common.setting;
 
 import java.util.Objects;
 
-import com.coscon.cop.common.SignAlgorithm;
+import com.coscon.cop.internal.SignAlgorithm;
 
 /**
  * @author Chen Jipeng

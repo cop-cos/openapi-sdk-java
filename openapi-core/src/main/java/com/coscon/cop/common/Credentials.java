@@ -16,15 +16,28 @@
  */
 package com.coscon.cop.common;
 
-import com.coscon.cop.common.provider.BasicUserPrincipal;
+import java.security.Principal;
 
 /**
+ * Credentials of each COP client, the only legal identification issued by COP administration.
+ * <p>Each credentials contains {@link Namespace} of affected scope, {@link Principal}, and password.
  * @author Chen Jipeng
  *
  */
 public interface Credentials {
-
+	/**
+	 * Returns {@link Namespace} of current credential.
+	 * @return {@link Namespace} represents credential scope
+	 */
 	Namespace getNamespace();
-	BasicUserPrincipal getPrincipal();
+	/**
+	 * Returns principal of current credential.
+	 * @return principal identified by its name.
+	 */
+	Principal getPrincipal();
+	/**
+	 * Returns secret password to establish principal identity
+	 * @return secret password
+	 */
 	String getPassword();
 }

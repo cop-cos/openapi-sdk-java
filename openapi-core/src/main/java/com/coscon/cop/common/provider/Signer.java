@@ -14,13 +14,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common;
+package com.coscon.cop.common.provider;
 
 import java.util.Objects;
 
 import org.apache.commons.lang3.EnumUtils;
 
-import com.coscon.cop.common.provider.CredentialsProvider;
+import com.coscon.cop.common.Credentials;
+import com.coscon.cop.common.Namespace;
+import com.coscon.cop.common.exception.CopClientSDKException;
 
 /**
  * @author Chen Jipeng / chenjp2@coscon.com
@@ -46,7 +48,7 @@ public interface Signer {
 	default boolean acceptRequest(String uri) {
 		Objects.requireNonNull(uri, "uri may not be null");
 		for(Namespace ns:EnumUtils.getEnumList(Namespace.class)) {
-			if(uri.toLowerCase().startsWith(ns.getPrefix().toLowerCase())) {
+			if(uri.toLowerCase().startsWith(ns.getRootUrl().toLowerCase())) {
 				return true;
 			}
 		}

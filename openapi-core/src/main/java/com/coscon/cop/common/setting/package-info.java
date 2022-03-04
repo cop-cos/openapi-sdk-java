@@ -14,22 +14,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common;
-
-import java.io.IOException;
-
 /**
- * @author Chen Jipeng / chenjp2@coscon.com
+ * @author Chen Jipeng
  *
  */
-public interface Validator {
-	/**
-	 * Validate response.
-	 * 
-	 * @param response
-	 *            from cop server.
-	 * @return result returns <code>true</code> if the response is valid.
-	 * @throws IOException
-	 */
-	public boolean validate(Object response) throws IOException;
-}
+package com.coscon.cop.common.setting;

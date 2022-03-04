@@ -1,4 +1,4 @@
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common;
 /*
  * Copyright (c) 1998-2022 COSCO Shipping Lines CO., Ltd. All Rights Reserved.
  *
@@ -21,17 +21,13 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.coscon.cop.common.CommonResponse;
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.CopServerBusinessException;
-import com.coscon.cop.common.Namespace;
-import com.coscon.cop.common.UsernamePasswordCredentials;
+import com.coscon.cop.common.exception.CopClientSDKException;
+import com.coscon.cop.common.exception.CopServerBusinessException;
+import com.coscon.cop.common.setting.ClientSettings;
 import com.google.gson.Gson;
 
 /**
@@ -52,7 +48,7 @@ public class CopClientInOkHttpTest {
 		ClientSettings settings = new ClientSettings();
 		settings.setDebugEnabled(true);
 		copClient = new CommonCopClient(ns,
-				new UsernamePasswordCredentials(ns, System.getenv("cop.pp.apiKey"), System.getenv("cop.pp.secretKey")),
+				new ApiSecretKeyCredentials(ns, System.getenv("cop.pp.apiKey"), System.getenv("cop.pp.secretKey")),
 				settings);
 	}
 

@@ -14,39 +14,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
-
-import java.util.Objects;
-import java.util.logging.Logger;
+package com.coscon.cop.common;
 
 /**
+ * Cop Supported HTTP Method enumeration
  * @author Chen Jipeng
  *
  */
-public class CopLog {
-
-	private boolean debugEnabled = false;
-	private final Logger logger;
-
+public enum SupportedHttpMethod {
+	
 	/**
-	 * Creates a new CopLog object.
+	 * Change to POST in the future.
 	 */
-	public CopLog(String name, boolean isDebugEnabled) {
-		super();
-		Objects.requireNonNull(name, "CopLog name may not be null");
-		this.logger = Logger.getLogger(name);
-		this.debugEnabled = isDebugEnabled;
+	@Deprecated
+	GET("GET"),
+	POST("POST");
+	
+	private String method;
+	private SupportedHttpMethod(String method) {
+		this.method=method;
 	}
-
 	/**
-	 * @return the debugEnabled
+	 * @return http-method
 	 */
-	public boolean isDebugEnabled() {
-		return debugEnabled;
-	}
-	public void info(final String message) {
-		if (debugEnabled) {
-			logger.info(message);
-		}
+	public String getMethod() {
+		return method;
 	}
 }

@@ -14,19 +14,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common.provider;
-
-import com.coscon.cop.common.Namespace;
-
 /**
  * @author Chen Jipeng
  *
  */
-public interface ValidatorProvider {
-    void setValidator(Namespace namespace, Validator validator);
-
-    Validator getValidator(Namespace namespace);
-
-    Validator getValidator(String url);
-    void clear();
-}
+package com.coscon.cop.common.exception;

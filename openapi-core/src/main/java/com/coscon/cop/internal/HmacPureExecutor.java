@@ -28,8 +28,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.SignAlgorithm;
+import com.coscon.cop.common.exception.CopClientSDKException;
 
 /**
  * A Pure Excutor to perform HTTP hmac digest & encryption, used to protect COP

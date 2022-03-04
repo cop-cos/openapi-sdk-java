@@ -57,7 +57,7 @@ public class BasicCredentialsProvider implements CredentialsProvider {
 	public Credentials getCredentials(String url) {
 		Objects.requireNonNull(url, "url may not be null");
 		for (Map.Entry<Namespace, Credentials> e : credentialsMap.entrySet()) {
-			if(url.toLowerCase().startsWith(e.getKey().getPrefix().toLowerCase())) {
+			if(url.toLowerCase().startsWith(e.getKey().getRootUrl().toLowerCase())) {
 				return e.getValue();
 			}
 		}

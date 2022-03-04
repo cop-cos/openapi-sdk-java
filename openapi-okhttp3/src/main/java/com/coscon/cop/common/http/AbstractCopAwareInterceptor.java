@@ -14,19 +14,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common.provider;
+package com.coscon.cop.common.http;
 
-import com.coscon.cop.common.Namespace;
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 /**
+ * This class provides a basic CopAware implementation of {@link Interceptor}.
+ * <p>To implements 
  * @author Chen Jipeng
  *
  */
-public interface ValidatorProvider {
-    void setValidator(Namespace namespace, Validator validator);
+public abstract class AbstractCopAwareInterceptor implements Interceptor {
 
-    Validator getValidator(Namespace namespace);
-
-    Validator getValidator(String url);
-    void clear();
+	protected abstract boolean accept(Chain chain);
+	@Override
+	public final Response intercept(Chain chain) throws IOException {
+		if(accept(chain)) {
+			return intercept0(chain);
+		} else {
+			return chain.proceed(chain.request());
+		}
+	}
+	protected abstract Response intercept0(Chain chain) throws IOException;
 }

@@ -14,31 +14,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common.provider;
 
 import java.io.IOException;
 
-import okhttp3.Interceptor;
-import okhttp3.Response;
-
 /**
- * This class provides a basic CopAware implementation of {@link Interceptor}.
- * <p>To implements 
- * @author Chen Jipeng
+ * @author Chen Jipeng / chenjp2@coscon.com
  *
  */
-public abstract class AbstractCopAwareInterceptor implements Interceptor {
-
-	protected boolean accept(Chain chain) {
-		return true;
-	}
-	@Override
-	public final Response intercept(Chain chain) throws IOException {
-		if(accept(chain)) {
-			return intercept0(chain);
-		} else {
-			return chain.proceed(chain.request());
-		}
-	}
-	protected abstract Response intercept0(Chain chain) throws IOException;
+public interface Validator {
+	/**
+	 * Validate response.
+	 * 
+	 * @param response
+	 *            from cop server.
+	 * @return result returns <code>true</code> if the response is valid.
+	 * @throws IOException
+	 */
+	public boolean validate(Object response) throws IOException;
 }

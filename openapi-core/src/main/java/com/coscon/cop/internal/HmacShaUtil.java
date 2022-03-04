@@ -22,11 +22,9 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.binary.StringUtils;
 
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.SignAlgorithm;
+import com.coscon.cop.common.exception.CopClientSDKException;
 
 /**
  * Hmac utility.

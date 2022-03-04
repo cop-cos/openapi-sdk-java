@@ -16,26 +16,37 @@
  */
 package com.coscon.cop.common;
 
+import java.util.Objects;
+import java.util.logging.Logger;
+
 /**
- * HTTP Method enumeration
  * @author Chen Jipeng
  *
  */
-public enum HttpMethods {
-	GET("GET"),
-	POST("POST");
-	
-	private String method;
+public class CopLog {
+
+	private boolean debugEnabled = false;
+	private final Logger logger;
+
 	/**
-	 * 
+	 * Creates a new CopLog object.
 	 */
-	private HttpMethods(String method) {
-		this.method=method;
+	public CopLog(String name, boolean isDebugEnabled) {
+		super();
+		Objects.requireNonNull(name, "CopLog name may not be null");
+		this.logger = Logger.getLogger(name);
+		this.debugEnabled = isDebugEnabled;
 	}
+
 	/**
-	 * @return the method
+	 * @return the debugEnabled
 	 */
-	public String getMethod() {
-		return method;
+	public boolean isDebugEnabled() {
+		return debugEnabled;
+	}
+	public void info(final String message) {
+		if (debugEnabled) {
+			logger.info(message);
+		}
 	}
 }

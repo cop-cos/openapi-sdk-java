@@ -14,18 +14,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common;
 
 import java.util.List;
 import java.util.Map;
 
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.CopServerBusinessException;
-import com.coscon.cop.common.Credentials;
-import com.coscon.cop.common.HttpMethods;
-import com.coscon.cop.common.Namespace;
-
-import okhttp3.Request;
+import com.coscon.cop.common.exception.CopClientSDKException;
+import com.coscon.cop.common.exception.CopServerBusinessException;
+import com.coscon.cop.common.setting.ClientSettings;
 
 /**
  * @author Chen Jipeng
@@ -52,7 +48,7 @@ public class CommonCopClient extends AbstractCopClient {
 	}
 	public String doGet(String relateUrlPath, Map<String, List<String>> extraHeaders)
 			throws CopClientSDKException, CopServerBusinessException {
-		return stringBody(makeCall(createRequest(HttpMethods.GET, relateUrlPath, "", extraHeaders)));
+		return stringBody(makeCall(createRequest(SupportedHttpMethod.GET, relateUrlPath, "", extraHeaders)));
 	}
 	public String doPost(String relateUrlPath, String jsonPayload)
 			throws CopClientSDKException, CopServerBusinessException {
@@ -60,6 +56,6 @@ public class CommonCopClient extends AbstractCopClient {
 	}
 	public String doPost(String relateUrlPath, String jsonPayload, Map<String, List<String>> extraHeaders)
 			throws CopClientSDKException, CopServerBusinessException {
-		return stringBody(makeCall(createRequest(HttpMethods.POST, relateUrlPath, jsonPayload, extraHeaders)));
+		return stringBody(makeCall(createRequest(SupportedHttpMethod.POST, relateUrlPath, jsonPayload, extraHeaders)));
 	}
 }

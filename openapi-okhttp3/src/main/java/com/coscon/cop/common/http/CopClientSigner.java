@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common.http;
 
 import java.io.IOException;
 import java.util.Map;
@@ -23,13 +23,13 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.coscon.cop.common.CopClientSDKException;
 import com.coscon.cop.common.Credentials;
-import com.coscon.cop.common.HttpMethods;
-import com.coscon.cop.common.SignAlgorithm;
-import com.coscon.cop.common.Signer;
+import com.coscon.cop.common.SupportedHttpMethod;
+import com.coscon.cop.common.exception.CopClientSDKException;
 import com.coscon.cop.common.provider.CredentialsProvider;
+import com.coscon.cop.common.provider.Signer;
 import com.coscon.cop.internal.HmacPureExecutor;
+import com.coscon.cop.internal.SignAlgorithm;
 
 import okhttp3.HttpUrl;
 import okhttp3.Protocol;
@@ -41,9 +41,9 @@ import okio.Buffer;
  * @author Chen Jipeng
  *
  */
-class CopClientSigner implements Signer {
+public class CopClientSigner implements Signer {
 	private final SignAlgorithm signMethod;
-	public CopClientSigner(SignAlgorithm method) {
+	public CopClientSigner(final SignAlgorithm method) {
 		super();
 		this.signMethod = Objects.requireNonNull(method,"signMethod may not be null");
 	}
@@ -81,12 +81,12 @@ class CopClientSigner implements Signer {
 
 		byte[] httpContent = new byte[0];
 		RequestBody body = request.body();
-		if (body != null && HttpMethods.POST.getMethod().equalsIgnoreCase(request.method())) {
+		if (body != null && SupportedHttpMethod.POST.getMethod().equalsIgnoreCase(request.method())) {
 			try (final Buffer buffer = new Buffer()) {
 				body.writeTo(buffer);
 				httpContent = buffer.readByteArray();
 			} catch (IOException e) {
-				throw new CopClientSDKException(e.getMessage());
+				throw new CopClientSDKException(e.getMessage(),e);
 			}
 		}
 

@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,25 +29,24 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 
-import com.coscon.cop.common.CommonResponse;
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.CopConstants;
-import com.coscon.cop.common.CopServerBusinessException;
-import com.coscon.cop.common.Credentials;
-import com.coscon.cop.common.HttpMethods;
-import com.coscon.cop.common.Namespace;
-import com.coscon.cop.common.Signer;
-import com.coscon.cop.common.Validator;
+import com.coscon.cop.common.exception.CopClientSDKException;
+import com.coscon.cop.common.exception.CopServerBusinessException;
+import com.coscon.cop.common.http.AbstractCopAwareInterceptor;
+import com.coscon.cop.common.http.CopClientSigner;
+import com.coscon.cop.common.http.CopConnection;
+import com.coscon.cop.common.http.CopHttpLogInterceptor;
 import com.coscon.cop.common.provider.BasicCredentialsProvider;
 import com.coscon.cop.common.provider.BasicValidatorProvider;
 import com.coscon.cop.common.provider.CredentialsProvider;
+import com.coscon.cop.common.provider.Signer;
+import com.coscon.cop.common.provider.Validator;
 import com.coscon.cop.common.provider.ValidatorProvider;
+import com.coscon.cop.common.setting.ClientSettings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
-import okhttp3.Authenticator;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
 import okhttp3.MediaType;
@@ -55,7 +54,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.Route;
 
 /**
  * @author Chen Jipeng
@@ -68,8 +66,8 @@ public class AbstractCopClient {
 	private Namespace namespace;
 	private String endpoint;
 	private String service;
-	protected Gson gson;
-	private ClientSettings clientSettings;
+	protected final Gson gson;
+	private final ClientSettings clientSettings;
 	private final CopLog logger;
 	private final Signer signer;
 	private BasicCredentialsProvider credentialsProvider;
@@ -80,18 +78,29 @@ public class AbstractCopClient {
 	}
 
 	public AbstractCopClient(Namespace ns, String endpoint, String version, Credentials credential,
-			ClientSettings profile) {
+			ClientSettings clientSettings) {
+		Objects.requireNonNull(credential, "credentials may not be null");
+		Objects.requireNonNull(clientSettings, "clientSettings may not be null");
 		this.namespace = ns;
 		this.credential = credential;
-		this.clientSettings = profile;
+		this.clientSettings = clientSettings;
 		this.endpoint = endpoint;
 		this.service = endpoint.split("\\.")[0];
 		this.gson = new GsonBuilder().create();
 		this.logger = new CopLog(this.getClass().getName(), this.clientSettings.isDebugEnabled());
-		this.signer = new CopClientSigner(getClientSettings().getSignMethod());
+		this.signer = new CopClientSigner(this.clientSettings.getSignMethod());
 		this.credentialsProvider = new BasicCredentialsProvider();
 		this.validatorProvider = new BasicValidatorProvider();
 		this.credentialsProvider.setCredentials(ns, this.credential);
+		
+		
+	}
+
+	/**
+	 * @return the service
+	 */
+	public String getService() {
+		return service;
 	}
 
 	/**
@@ -118,16 +127,25 @@ public class AbstractCopClient {
 	protected CopConnection makeCopConnection() {
 		CopConnection conn = new CopConnection(getClientSettings().getConnectionTimeout(),
 				getClientSettings().getReadTimeout(), getClientSettings().getWriteTimeout()) {
-			@Override
-			protected void initialize() {
-				prepareConnection(this);
-			}
 		};
-		conn.initialize();
+		prepareConnection(conn);
 		return conn;
 	}
 
+	private final AbstractCopAwareInterceptor logInterceptor = new CopHttpLogInterceptor() {
+		@Override
+		protected boolean accept(Chain chain) {
+			return getSigner().acceptRequest(chain.request().url().toString());
+		}
+		protected CopLog getLogger() {
+			return AbstractCopClient.this.logger;
+		}
+	};
 	private final AbstractCopAwareInterceptor copSignerInterceptor = new AbstractCopAwareInterceptor() {
+		@Override
+		protected boolean accept(Chain chain) {
+			return getSigner().acceptRequest(chain.request().url().toString());
+		}
 		protected Response convertToRepeatableResponse(Response response) throws IOException {
 			ResponseBody body = response.body();
 			if (body == null) {
@@ -151,7 +169,7 @@ public class AbstractCopClient {
 				try {
 					request = (Request) getSigner().sign(getCredentialsProvider(), request);
 				} catch (CopClientSDKException e) {
-					throw new IOException("COP request sign failed.");
+					throw new IOException("COP request sign failed.", e);
 				}
 				Response response = chain.proceed(request);
 				response = response.newBuilder().addHeader(CopConstants.HTTP_HEADER_REQUEST_ID, requestId).build();
@@ -169,17 +187,23 @@ public class AbstractCopClient {
 		}
 	};
 
+	/**
+	 * Performs preparation for {@link CopConnection} before communication.
+	 * 
+	 * @param conn {@link CopConnection} instance.
+	 */
 	protected void prepareConnection(CopConnection conn) {
 		/**
 		 * Registers request/response logger
 		 */
-		conn.addInterceptor(new CopHttpLogInterceptor(logger));
+		conn.addInterceptor(logInterceptor);
 		/**
 		 * Registers cop signer
 		 */
 		conn.addInterceptor(copSignerInterceptor);
 
 		trySetupProxy(conn);
+
 		conn.buildInternalClient();
 	}
 
@@ -230,11 +254,15 @@ public class AbstractCopClient {
 		}
 		String respbody = null;
 		try {
-			respbody = response.body().string();
+			ResponseBody body = response.body();
+			if (body == null) {
+				throw new CopClientSDKException("response body may be null");
+			}
+			respbody = body.string();
 		} catch (IOException e) {
 			String msg = "Cannot transfer response body to string, because Content-Length is too large, or Content-Length and stream length disagree.";
 			logger.info(msg);
-			throw new CopClientSDKException(msg + " " + e.getClass().getName());
+			throw new CopClientSDKException(msg + " " + e.getClass().getName(), e);
 		}
 		CommonResponse commonResponse = null;
 		try {
@@ -272,14 +300,10 @@ public class AbstractCopClient {
 		if (username == null || username.isEmpty()) {
 			return;
 		}
-		conn.setProxyAuthenticator(new Authenticator() {
-			@Override
-			public Request authenticate(Route route, Response response) throws IOException {
-				return response.request().newBuilder()
-						.header("Proxy-Authorization", okhttp3.Credentials.basic(username, password)).build();
-			}
+		conn.setProxyAuthenticator((route, response) -> response.request().newBuilder()
+				.header("Proxy-Authorization", okhttp3.Credentials.basic(username, password)).build()
 
-		});
+		);
 	}
 
 	protected final Headers.Builder addHeaders(Headers.Builder builder, Map<String, List<String>> extraHeaders) {
@@ -298,10 +322,10 @@ public class AbstractCopClient {
 		return builder;
 	}
 
-	protected Request createRequest(HttpMethods method, String relativePath, String jsonPayload,
+	protected Request createRequest(SupportedHttpMethod method, String relativePath, String jsonPayload,
 			Map<String, List<String>> extraHeaders) {
 		Objects.requireNonNull(method, "http method may not be null");
-		String url = this.namespace.getPrefix() + relativePath;
+		String url = this.namespace.getRootUrl() + relativePath;
 		Builder hb = new Headers.Builder();
 		hb = hb.add(CopConstants.HTTP_HEADER_ACCEPT, "application/json")
 				.add(CopConstants.HTTP_HEADER_ACCEPT_CHARSET, "utf-8")

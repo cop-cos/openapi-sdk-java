@@ -14,13 +14,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common.http;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.StringUtils;
+
+import com.coscon.cop.common.CopLog;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -33,29 +33,27 @@ import okhttp3.Response;
  * @author Chen Jipeng
  *
  */
-public class CopHttpLogInterceptor extends AbstractCopAwareInterceptor implements Interceptor {
-
-	private final CopLog logger;
-
+public abstract class CopHttpLogInterceptor extends AbstractCopAwareInterceptor implements Interceptor {
 	/**
 	 * Constructs a new instance with given logger name.
 	 * 
 	 * @param name of logger.
 	 */
-	public CopHttpLogInterceptor(CopLog logger) {
+	public CopHttpLogInterceptor() {
 		super();
-		this.logger = logger;
 	}
+
+	protected abstract CopLog getLogger();
 
 	/**
 	 * @return the debugEnabled
 	 */
 	public boolean isDebugEnabled() {
-		return logger.isDebugEnabled();
+		return getLogger().isDebugEnabled();
 	}
 
 	protected void info(final String message) {
-		logger.info(message);
+		getLogger().info(message);
 	}
 
 	@Override
@@ -63,17 +61,17 @@ public class CopHttpLogInterceptor extends AbstractCopAwareInterceptor implement
 		Request request = chain.request();
 		if (isDebugEnabled()) {
 			StringBuilder messageBuilder = new StringBuilder();
-			messageBuilder.append("Send request. Request url: ").append(request.url().toString())
-					.append(", request headers information: ").append(request.headers().toString());
+			messageBuilder.append("Send request. Request url: ").append(request.url())
+					.append(", request headers information: ").append(request.headers());
 			String message = RegExUtils.replaceAll(messageBuilder.toString(), "\n", ";");
 			info(message);
 		}
 		Response response = chain.proceed(request);
 		if (isDebugEnabled()) {
 			StringBuilder messageBuilder = new StringBuilder();
-			messageBuilder.append("Recieve response. Response url: ").append(response.request().url().toString())
-					.append(", response headers: ").append(response.headers().toString())
-					.append(", response body information: ").append(response.body());
+			messageBuilder.append("Recieve response. Response url: ").append(request.url())
+					.append(", response headers: ").append(response.headers()).append(", response body information: ")
+					.append(response.body());
 			String message = RegExUtils.replaceAll(messageBuilder.toString(), "\n", ";");
 			info(message);
 		}

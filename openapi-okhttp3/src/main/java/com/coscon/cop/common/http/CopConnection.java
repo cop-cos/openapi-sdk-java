@@ -14,33 +14,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.okhttp3;
+package com.coscon.cop.common.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Proxy;
 import java.time.Duration;
 
-import org.apache.commons.io.IOUtils;
-
-import com.coscon.cop.common.CopClientSDKException;
-import com.coscon.cop.common.CopConstants;
+import com.coscon.cop.common.exception.CopClientSDKException;
 
 import okhttp3.Authenticator;
-import okhttp3.Headers;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * @author Chen Jipeng
  *
  */
-public abstract class CopConnection {
+public class CopConnection {
 
 	private OkHttpClient.Builder httpClientBuilder;
 	private OkHttpClient httpClient;
@@ -50,8 +42,6 @@ public abstract class CopConnection {
 				.readTimeout(Duration.ofSeconds(readTimeout)).writeTimeout(Duration.ofSeconds(writeTimeout));
 
 	}
-
-	protected abstract void initialize();
 
 	public void addInterceptor(Interceptor interceptor) {
 		this.httpClientBuilder.addInterceptor(interceptor);

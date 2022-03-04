@@ -17,9 +17,8 @@
 package com.coscon.cop.common;
 
 /**
- * COP Namespace
- * @author Chen Jipeng 
- * 
+ * Namespace of COP, identified by its rootUrl.
+ * @author Chen Jipeng
  */
 public enum Namespace {
 
@@ -34,9 +33,9 @@ public enum Namespace {
 		this.prefix = prefix;
 	}
 	/**
-	 * @return the prefix
+	 * @return rootUrl of namespace.
 	 */
-	public String getPrefix() {
+	public String getRootUrl() {
 		return prefix;
 	}
 }

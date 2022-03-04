@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.coscon.cop.common.Namespace;
-import com.coscon.cop.common.Validator;
 
 /**
  * @author Chen Jipeng
@@ -48,7 +47,7 @@ public class BasicValidatorProvider implements ValidatorProvider {
 	public Validator getValidator(String url) {
 		Objects.requireNonNull(url, "url may not be null");
 		for (Map.Entry<Namespace, Validator> e : validatorMap.entrySet()) {
-			if(url.toLowerCase().startsWith(e.getKey().getPrefix().toLowerCase())) {
+			if(url.toLowerCase().startsWith(e.getKey().getRootUrl().toLowerCase())) {
 				return e.getValue();
 			}
 		}

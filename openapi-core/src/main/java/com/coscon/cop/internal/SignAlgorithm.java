@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.coscon.cop.common;
+package com.coscon.cop.internal;
 
 /**
  * Supported algorithm.
