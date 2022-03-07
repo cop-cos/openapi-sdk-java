@@ -26,39 +26,62 @@ import com.coscon.cop.internal.SignAlgorithm;
  */
 public class ClientSettings {
 	private int connectionTimeout;
-	private int readTimout;
-	private int writeTimeout;
 	private boolean debugEnabled;
+	private final HttpProxy proxy;
+	private int readTimout;
 	private SignAlgorithm signMethod;
+	private int writeTimeout;
+
 	/**
 	 * Creates a clientSetting with default settings.
 	 */
 	public ClientSettings() {
-		this(SignAlgorithm.HMAC_SHA1,false,30,10,10);
+		this((HttpProxy) null);
 	}
-	
-	/**
-	 * @param debugEnabled the debugEnabled to set
-	 */
-	public void setDebugEnabled(boolean debugEnabled) {
-		this.debugEnabled = debugEnabled;
+
+	public ClientSettings(HttpProxy proxy) {
+		this(SignAlgorithm.HMAC_SHA1, proxy);
 	}
+
+	public ClientSettings(SignAlgorithm signMethod) {
+		this(signMethod, (HttpProxy) null);
+	}
+
 	/**
 	 * Creates a clientSetting
-	 * @param signMethod 
+	 * 
+	 * @param signMethod
 	 * @param debugEnabled
 	 * @param connectionTimeout
 	 * @param readTimeout
 	 * @param writeTimeout
 	 */
-	public ClientSettings(SignAlgorithm signMethod, boolean debugEnabled, int connectionTimeout, int readTimeout, int writeTimeout) {
+	public ClientSettings(SignAlgorithm signMethod, boolean debugEnabled, int connectionTimeout, int readTimeout,
+			int writeTimeout) {
+		this(signMethod, debugEnabled, connectionTimeout, readTimeout, writeTimeout, null);
+	}
+
+	public ClientSettings(SignAlgorithm signMethod, boolean debugEnabled, int connectionTimeout, int readTimeout,
+			int writeTimeout, HttpProxy proxy) {
 		super();
-		this.signMethod = Objects.requireNonNull(signMethod,"signMethod may not be null");
+
+		this.signMethod = Objects.requireNonNull(signMethod, "signMethod may not be null");
+		if (Objects.isNull(proxy)) {
+			this.proxy = new HttpProxy(null, -1, null, null);
+		} else {
+			this.proxy = proxy;
+		}
+
 		this.debugEnabled = debugEnabled;
 		this.connectionTimeout = connectionTimeout;
 		this.readTimout = readTimeout;
 		this.writeTimeout = writeTimeout;
 	}
+
+	public ClientSettings(SignAlgorithm signMethod, HttpProxy proxy) {
+		this(signMethod, false, 30, 10, 10, proxy);
+	}
+
 	/**
 	 * @return
 	 */
@@ -69,8 +92,43 @@ public class ClientSettings {
 	/**
 	 * @return
 	 */
+	public String getProxyHost() {
+		return proxy.getHost();
+	}
+
+	/**
+	 * @return
+	 */
+	public String getProxyPassword() {
+		return proxy.getPassword();
+	}
+
+	/**
+	 * @return
+	 */
+	public int getProxyPort() {
+		return proxy.getPort();
+	}
+
+	/**
+	 * @return
+	 */
+	public String getProxyUsername() {
+		return proxy.getUsername();
+	}
+
+	/**
+	 * @return
+	 */
 	public int getReadTimeout() {
 		return readTimout;
+	}
+
+	/**
+	 * @return
+	 */
+	public SignAlgorithm getSignMethod() {
+		return signMethod;
 	}
 
 	/**
@@ -88,38 +146,10 @@ public class ClientSettings {
 	}
 
 	/**
-	 * @return
+	 * @param debugEnabled the debugEnabled to set
 	 */
-	public String getProxyHost() {
-		return null;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getProxyPort() {
-		return 0;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getProxyUsername() {
-		return null;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getProxyPassword() {
-		return null;
-	}
-
-	/**
-	 * @return
-	 */
-	public SignAlgorithm getSignMethod() {
-		return signMethod;
+	public void setDebugEnabled(boolean debugEnabled) {
+		this.debugEnabled = debugEnabled;
 	}
 
 }

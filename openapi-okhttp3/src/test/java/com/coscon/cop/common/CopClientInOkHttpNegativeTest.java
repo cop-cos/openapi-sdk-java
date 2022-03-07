@@ -16,17 +16,13 @@ package com.coscon.cop.common;
  * under the License.
  */
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.coscon.cop.common.exception.CopClientSDKException;
-import com.coscon.cop.common.exception.CopServerBusinessException;
 import com.coscon.cop.common.setting.ClientSettings;
 import com.google.gson.Gson;
 
@@ -34,11 +30,10 @@ import com.google.gson.Gson;
  * @author Chen Jipeng
  *
  */
-public class CopClientInOkHttpTest {
+public class CopClientInOkHttpNegativeTest {
 
 	private CommonCopClient copClient = null;
 	private Namespace ns = Namespace.COP_PUBLIC_PP;
-	private Gson gson = new Gson();
 
 	/**
 	 * @throws java.lang.Exception
@@ -48,7 +43,7 @@ public class CopClientInOkHttpTest {
 		ClientSettings settings = new ClientSettings();
 		settings.setDebugEnabled(true);
 		copClient = new CommonCopClient(ns,
-				new ApiSecretKeyCredentials(ns, System.getenv("cop.pp.apiKey"), System.getenv("cop.pp.secretKey")),
+				new ApiSecretKeyCredentials(ns, "Hello", "World"),
 				settings);
 	}
 
@@ -66,19 +61,7 @@ public class CopClientInOkHttpTest {
 	 */
 	@Test
 	public void testDoGetNamespaceStringMapOfStringListOfString() {
-		// Get
-		String content;
-		try {
-			content = copClient.doGet("/info/tracking/6309441170?numberType=bl");
-			CommonResponse response = gson.fromJson(content, CommonResponse.class);
-			assertEquals(0, response.getCode());
-			assertTrue("response should contains 6309441170", content.contains("6309441170"));
-		} catch (CopClientSDKException e) {
-			fail(e.getMessage());
-		} catch (CopServerBusinessException e) {
-			fail(e.getMessage());
-		}
-
+			assertThrows(CopClientSDKException.class,()-> copClient.doGet("/info/tracking/6309441170?numberType=bl"));
 	}
 
 	/**
@@ -94,8 +77,7 @@ public class CopClientInOkHttpTest {
 		/*
 		 * Unable to identify user -- from Synconhub service
 		 */
-		assertThrows(CopServerBusinessException.class,
+		assertThrows(CopClientSDKException.class,
 				() -> copClient.doPost("/synconhub/product/reefer/search", payload));
-
 	}
 }

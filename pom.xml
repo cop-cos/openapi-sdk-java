@@ -23,7 +23,7 @@
 	</developers>
 
 	<properties>
-		<revision>0.0.1</revision>
+		<revision>0.1.0</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- 3rd lib version -->
@@ -35,7 +35,7 @@
 		<slf4j.version>1.7.21</slf4j.version>
 		<spring-boot.version>2.4.12</spring-boot.version>
 		<google.gson.version>2.8.8</google.gson.version>
-		
+
 		<!-- Plugins Version -->
 		<maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
@@ -49,7 +49,6 @@
 	</properties>
 	<modules>
 		<module>openapi-core</module>
-		<module>openapi-apache-httpclient</module>
 		<module>openapi-okhttp3</module>
 	</modules>
 	<dependencyManagement>
@@ -71,9 +70,9 @@
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/fluent-hc -->
 			<dependency>
-			    <groupId>org.apache.httpcomponents</groupId>
-			    <artifactId>fluent-hc</artifactId>
-			    <version>${apache.httpclient.fluent.version}</version>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>fluent-hc</artifactId>
+				<version>${apache.httpclient.fluent.version}</version>
 			</dependency>
 
 			<dependency>
@@ -286,25 +285,12 @@
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.2</version>
 				</plugin>
-				<!--<plugin>
-					<groupId>pl.project13.maven</groupId>
-					<artifactId>git-commit-id-plugin</artifactId>
-					<version>2.2.6</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>revision</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<verbose>true</verbose>
-						<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-						<generateGitPropertiesFile>true</generateGitPropertiesFile>
-						<generateGitPropertiesFilename>${project.build.outputDirectory}/cop-git.properties</generateGitPropertiesFilename>
-						<failOnNoGitDirectory>false</failOnNoGitDirectory>
-					</configuration>
-				</plugin>
+				<!--<plugin> <groupId>pl.project13.maven</groupId> <artifactId>git-commit-id-plugin</artifactId> 
+					<version>2.2.6</version> <executions> <execution> <goals> <goal>revision</goal> 
+					</goals> </execution> </executions> <configuration> <verbose>true</verbose> 
+					<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat> <generateGitPropertiesFile>true</generateGitPropertiesFile> 
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/cop-git.properties</generateGitPropertiesFilename> 
+					<failOnNoGitDirectory>false</failOnNoGitDirectory> </configuration> </plugin> -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>flatten-maven-plugin</artifactId>
@@ -330,7 +316,6 @@
 						</execution>
 					</executions>
 				</plugin>
-				 -->
 				<!-- Need to set releases.repo and snapshots.repo properties in your 
 					.m2/settings.xml -->
 			</plugins>
@@ -384,12 +369,25 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>flatten-maven-plugin</artifactId>
+				<artifactId>templating-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<id>filter-src</id>
+						<goals>
+							<goal>filter-sources</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
+							<outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<resources>
@@ -431,87 +429,6 @@
 	</build>
 	<profiles>
 		<profile>
-			<!-- for travis usage -->
-			<id>travis</id>
-			<activation>
-				<property>
-					<name>env.TRAVIS</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.github</groupId>
-						<artifactId>site-maven-plugin</artifactId>
-						<version>0.12</version>
-						<configuration>
-							<message>Site for ${project.artifactId}, ${project.version}</message>
-							<path>${github.path}</path>
-							<merge>true</merge>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>site</goal>
-								</goals>
-								<phase>site</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.3</version>
-						<executions>
-							<execution>
-								<id>prepare-agent</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eluder.coveralls</groupId>
-						<artifactId>coveralls-maven-plugin</artifactId>
-						<version>4.2.0</version>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<!-- for open source usage -->
-			<id>github</id>
-			<properties>
-				<package.environment>github</package.environment>
-			</properties>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-		<profile>
-			<id>nacos-discovery</id>
-			<properties>
-				<nacos.discovery.version>0.2.7</nacos.discovery.version>
-				<fastjson.version>1.2.75</fastjson.version>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>com.alibaba.boot</groupId>
-						<artifactId>nacos-discovery-spring-boot-starter</artifactId>
-						<version>${nacos.discovery.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>com.alibaba</groupId>
-						<artifactId>fastjson</artifactId>
-						<version>${fastjson.version}</version>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
-		</profile>
-		<profile>
 			<id>release</id>
 			<build>
 				<plugins>
@@ -526,17 +443,6 @@
 				</plugins>
 			</build>
 		</profile>
-		<!-- <profile> <id>configdb</id> <build> <plugins> <plugin> <groupId>org.flywaydb</groupId> 
-			<artifactId>flyway-maven-plugin</artifactId> <version>5.2.4</version> <dependencies> 
-			<dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> 
-			<version>8.0.16</version> </dependency> </dependencies> <configuration> <configFile>scripts/flyway/flyway-configdb.properties</configFile> 
-			</configuration> <inherited>false</inherited> </plugin> </plugins> </build> 
-			</profile> <profile> <id>portaldb</id> <build> <plugins> <plugin> <groupId>org.flywaydb</groupId> 
-			<artifactId>flyway-maven-plugin</artifactId> <version>5.2.4</version> <dependencies> 
-			<dependency> <groupId>mysql</groupId> <artifactId>mysql-connector-java</artifactId> 
-			<version>8.0.16</version> </dependency> </dependencies> <configuration> <configFile>scripts/flyway/flyway-portaldb.properties</configFile> 
-			</configuration> <inherited>false</inherited> </plugin> </plugins> </build> 
-			</profile> -->
 	</profiles>
 
 	<reporting>

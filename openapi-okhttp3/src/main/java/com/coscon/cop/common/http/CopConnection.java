@@ -19,16 +19,19 @@ package com.coscon.cop.common.http;
 import java.io.IOException;
 import java.net.Proxy;
 import java.time.Duration;
+import java.util.Arrays;
 
 import com.coscon.cop.common.exception.CopClientSDKException;
 
 import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 
 /**
+ * This class provides a mechanism to setup and communicate internal {@link OkHttpClient}.
  * @author Chen Jipeng
  *
  */
@@ -38,14 +41,16 @@ public class CopConnection {
 	private OkHttpClient httpClient;
 
 	protected CopConnection(int connTimeout, int readTimeout, int writeTimeout) {
-		this.httpClientBuilder = new OkHttpClient.Builder().connectTimeout(Duration.ofSeconds(connTimeout))
-				.readTimeout(Duration.ofSeconds(readTimeout)).writeTimeout(Duration.ofSeconds(writeTimeout));
+		this.httpClientBuilder = new OkHttpClient.Builder().protocols(Arrays.asList(Protocol.HTTP_1_1))
+				.connectTimeout(Duration.ofSeconds(connTimeout)).readTimeout(Duration.ofSeconds(readTimeout))
+				.writeTimeout(Duration.ofSeconds(writeTimeout));
 
 	}
 
 	public void addInterceptor(Interceptor interceptor) {
 		this.httpClientBuilder.addInterceptor(interceptor);
 	}
+
 	public void setProxy(Proxy proxy) {
 		this.httpClientBuilder.proxy(proxy);
 	}
@@ -53,13 +58,14 @@ public class CopConnection {
 	public void setProxyAuthenticator(Authenticator authenticator) {
 		this.httpClientBuilder.proxyAuthenticator(authenticator);
 	}
+
 	/**
 	 * Call this method to build an internal client.
-	 * <p>Programmer needs call this method before communicate with COP service.
+	 * <p>
+	 * Programmer needs call this method before communicate with COP service.
 	 */
 	public CopConnection buildInternalClient() {
 		this.httpClient = this.httpClientBuilder.build();
-		this.httpClientBuilder = null;
 		return this;
 	}
 
@@ -69,7 +75,7 @@ public class CopConnection {
 		}
 	}
 
-	public Response doRequest(Request request) throws IOException, CopClientSDKException{
+	public Response doRequest(Request request) throws IOException, CopClientSDKException {
 		checkInternalClient();
 		return this.httpClient.newCall(request).execute();
 	}

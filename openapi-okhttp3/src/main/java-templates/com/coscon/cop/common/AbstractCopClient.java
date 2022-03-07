@@ -61,7 +61,7 @@ import okhttp3.ResponseBody;
  */
 public class AbstractCopClient {
 	public static final MediaType defaultMediaType = MediaType.parse("application/json; charset=UTF-8");
-	public static final String SDK_VERSION = "COP_CLIENT_SDK_JAVA_0.0.1";
+	public static final String SDK_VERSION = "COP_CLIENT_SDK_JAVA_r${revision}";
 	private Credentials credential;
 	private Namespace namespace;
 	private String endpoint;
@@ -79,8 +79,12 @@ public class AbstractCopClient {
 
 	public AbstractCopClient(Namespace ns, String endpoint, String version, Credentials credential,
 			ClientSettings clientSettings) {
+		Objects.requireNonNull(ns, "namespace may not be null");
 		Objects.requireNonNull(credential, "credentials may not be null");
 		Objects.requireNonNull(clientSettings, "clientSettings may not be null");
+		if (ns != credential.getNamespace()) {
+			throw new IllegalArgumentException("namespace between client and credentials may not be same");
+		}
 		this.namespace = ns;
 		this.credential = credential;
 		this.clientSettings = clientSettings;
@@ -92,8 +96,7 @@ public class AbstractCopClient {
 		this.credentialsProvider = new BasicCredentialsProvider();
 		this.validatorProvider = new BasicValidatorProvider();
 		this.credentialsProvider.setCredentials(ns, this.credential);
-		
-		
+		this.copConnection = makeCopConnection();
 	}
 
 	/**
@@ -124,7 +127,18 @@ public class AbstractCopClient {
 		return endpoint;
 	}
 
-	protected CopConnection makeCopConnection() {
+	private CopConnection copConnection;
+
+	/**
+	 * Returns a internal delegate {@link CopConnection}
+	 * 
+	 * @return the copConnection
+	 */
+	protected CopConnection getCopConnection() {
+		return this.copConnection;
+	}
+
+	private CopConnection makeCopConnection() {
 		CopConnection conn = new CopConnection(getClientSettings().getConnectionTimeout(),
 				getClientSettings().getReadTimeout(), getClientSettings().getWriteTimeout()) {
 		};
@@ -137,6 +151,7 @@ public class AbstractCopClient {
 		protected boolean accept(Chain chain) {
 			return getSigner().acceptRequest(chain.request().url().toString());
 		}
+
 		protected CopLog getLogger() {
 			return AbstractCopClient.this.logger;
 		}
@@ -146,6 +161,7 @@ public class AbstractCopClient {
 		protected boolean accept(Chain chain) {
 			return getSigner().acceptRequest(chain.request().url().toString());
 		}
+
 		protected Response convertToRepeatableResponse(Response response) throws IOException {
 			ResponseBody body = response.body();
 			if (body == null) {
@@ -162,28 +178,24 @@ public class AbstractCopClient {
 		protected Response intercept0(Chain chain) throws IOException {
 			Request request = chain.request();
 
-			if (getSigner().acceptRequest(request.url().toString())) {
-				Request.Builder newBuilder = request.newBuilder();
-				final String requestId = UUID.randomUUID().toString();
-				request = newBuilder.addHeader(CopConstants.HTTP_HEADER_REQUEST_ID, requestId).build();
-				try {
-					request = (Request) getSigner().sign(getCredentialsProvider(), request);
-				} catch (CopClientSDKException e) {
-					throw new IOException("COP request sign failed.", e);
-				}
-				Response response = chain.proceed(request);
-				response = response.newBuilder().addHeader(CopConstants.HTTP_HEADER_REQUEST_ID, requestId).build();
-				if (response.code() >= 200 && response.code() < 300) {
-					response = convertToRepeatableResponse(response);
-					Validator validator = getValidatorProvider().getValidator(request.url().toString());
-					if (validator != null && !validator.validate(response)) {
-						throw new IOException("COP response validation failed.");
-					}
-				}
-				return response;
-			} else {
-				return chain.proceed(chain.request());
+			Request.Builder newBuilder = request.newBuilder();
+			final String requestId = UUID.randomUUID().toString();
+			request = newBuilder.addHeader(CopConstants.HTTP_HEADER_REQUEST_ID, requestId).build();
+			try {
+				request = (Request) getSigner().sign(getCredentialsProvider(), request);
+			} catch (CopClientSDKException e) {
+				throw new IOException("COP request sign failed.", e);
 			}
+			Response response = chain.proceed(request);
+			response = response.newBuilder().addHeader(CopConstants.HTTP_HEADER_REQUEST_ID, requestId).build();
+			if (response.code() >= 200 && response.code() < 300) {
+				response = convertToRepeatableResponse(response);
+				Validator validator = getValidatorProvider().getValidator(request.url().toString());
+				if (validator != null && !validator.validate(response)) {
+					throw new IOException("COP response validation failed.");
+				}
+			}
+			return response;
 		}
 	};
 
@@ -194,13 +206,14 @@ public class AbstractCopClient {
 	 */
 	protected void prepareConnection(CopConnection conn) {
 		/**
-		 * Registers request/response logger
-		 */
-		conn.addInterceptor(logInterceptor);
-		/**
 		 * Registers cop signer
 		 */
 		conn.addInterceptor(copSignerInterceptor);
+
+		/**
+		 * Registers request/response logger
+		 */
+		conn.addInterceptor(logInterceptor);
 
 		trySetupProxy(conn);
 
@@ -229,9 +242,8 @@ public class AbstractCopClient {
 	 * @throws CopClientSDKException
 	 */
 	protected Response makeCall(Request request) throws CopClientSDKException {
-		CopConnection conn = makeCopConnection();
 		try {
-			return conn.doRequest(request);
+			return getCopConnection().doRequest(request);
 		} catch (IOException e) {
 			throw new CopClientSDKException(e.getClass().getName() + "-" + e.getMessage(), e,
 					request.header(CopConstants.HTTP_HEADER_REQUEST_ID));
@@ -249,8 +261,9 @@ public class AbstractCopClient {
 	 */
 	protected String stringBody(Response response) throws CopClientSDKException, CopServerBusinessException {
 		if (response.code() != CopConstants.HTTP_STATUS_OK) {
-			String msg = "Response code is " + response.code() + ", not 200";
-			throw new CopClientSDKException(msg, "RequestNotAccepted");
+			String msg = "HTTP Response code is " + response.code() + ", message is " + response.message();
+			throw new CopClientSDKException(msg, response.header(CopConstants.HTTP_HEADER_REQUEST_ID),
+					"RequestNotProcessed");
 		}
 		String respbody = null;
 		try {
@@ -300,10 +313,9 @@ public class AbstractCopClient {
 		if (username == null || username.isEmpty()) {
 			return;
 		}
-		conn.setProxyAuthenticator((route, response) -> response.request().newBuilder()
-				.header("Proxy-Authorization", okhttp3.Credentials.basic(username, password)).build()
 
-		);
+		conn.setProxyAuthenticator((route, response) -> response.request().newBuilder()
+				.header("Proxy-Authorization", okhttp3.Credentials.basic(username, password)).build());
 	}
 
 	protected final Headers.Builder addHeaders(Headers.Builder builder, Map<String, List<String>> extraHeaders) {
@@ -324,7 +336,22 @@ public class AbstractCopClient {
 
 	protected Request createRequest(SupportedHttpMethod method, String relativePath, String jsonPayload,
 			Map<String, List<String>> extraHeaders) {
+		return createRequest(method, relativePath, jsonPayload, defaultMediaType, extraHeaders);
+	}
+
+	/**
+	 * 
+	 * @param method
+	 * @param relativePath
+	 * @param jsonPayload
+	 * @param mediaType
+	 * @param extraHeaders
+	 * @return
+	 */
+	protected Request createRequest(SupportedHttpMethod method, String relativePath, String jsonPayload,
+			MediaType mediaType, Map<String, List<String>> extraHeaders) {
 		Objects.requireNonNull(method, "http method may not be null");
+		Objects.requireNonNull(mediaType, "mediaType may not be null");
 		String url = this.namespace.getRootUrl() + relativePath;
 		Builder hb = new Headers.Builder();
 		hb = hb.add(CopConstants.HTTP_HEADER_ACCEPT, "application/json")
@@ -332,12 +359,13 @@ public class AbstractCopClient {
 				.add(CopConstants.HTTP_HEADER_CONTENT_TYPE, "application/json; charset=utf-8")
 				.add(CopConstants.HTTP_HEADER_CLIENT_SDK_VERION, SDK_VERSION);
 		hb = addHeaders(hb, extraHeaders);
+
 		switch (method) {
 		case GET:
 			return new Request.Builder().url(url).headers(hb.build()).get().build();
 		case POST:
-			return new Request.Builder().url(url).headers(hb.build())
-					.post(RequestBody.create(jsonPayload, defaultMediaType)).build();
+			return new Request.Builder().url(url).headers(hb.build()).post(RequestBody.create(jsonPayload, mediaType))
+					.build();
 		default:
 			throw new IllegalArgumentException("Unsupported method:" + method.name());
 		}

@@ -19,6 +19,7 @@ package com.coscon.cop.common.http;
 import java.io.IOException;
 
 import okhttp3.Interceptor;
+import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -29,6 +30,11 @@ import okhttp3.Response;
  */
 public abstract class AbstractCopAwareInterceptor implements Interceptor {
 
+	/**
+	 * Checks whether the {@link Request} of {@link Chain} is CopAware or not.
+	 * @param chain
+	 * @return <tt>true</true> if it's a COP request. Otherwise returns <tt>false</tt>
+	 */
 	protected abstract boolean accept(Chain chain);
 	@Override
 	public final Response intercept(Chain chain) throws IOException {
@@ -38,5 +44,11 @@ public abstract class AbstractCopAwareInterceptor implements Interceptor {
 			return chain.proceed(chain.request());
 		}
 	}
+	/**
+	 * Defines the actual action of subclass for those COP request.
+	 * @param chain
+	 * @return response after decorated.
+	 * @throws IOException
+	 */
 	protected abstract Response intercept0(Chain chain) throws IOException;
 }

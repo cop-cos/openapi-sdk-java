@@ -95,7 +95,19 @@ public class CopClientSDKException extends Exception {
 		this.requestId = requestId;
 		this.errorCode = errorCode;
 	}
-
+	/**
+	 * Constructs a new {@link CopClientSDKException} instance with the specified
+	 * detail message, an unique request id, and error code.
+	 * <p>
+	 * 
+	 * @param message   the detail message (which is saved for later retrieval by
+	 *                  the {@link #getMessage()} method).
+	 * @param requestId the requestId (which is unique for each request).
+	 * @param errorCode the error code.
+	 */
+	public CopClientSDKException(String message, String requestId,String errorCode) {
+		this(message, (Throwable)null, requestId,errorCode);
+	}
 	/**
 	 * Constructs a new {@link CopClientSDKException} instance with the specified
 	 * detail message and an unique request id
@@ -106,7 +118,7 @@ public class CopClientSDKException extends Exception {
 	 * @param requestId the requestId (which is unique for each request).
 	 */
 	public CopClientSDKException(String message, String requestId) {
-		this(message, null, requestId, "");
+		this(message, requestId, "");
 	}
 
 
